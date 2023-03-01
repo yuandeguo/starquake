@@ -5,17 +5,28 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuan.mapper.ArticleMapper;
+import com.yuan.mapper.CommentMapper;
+import com.yuan.myEnum.CommentTypeEnum;
+import com.yuan.myEnum.CommonConst;
 import com.yuan.params.SearchArticleParam;
 import com.yuan.pojo.Article;
+import com.yuan.pojo.Comment;
+import com.yuan.pojo.Sort;
 import com.yuan.pojo.User;
-import com.yuan.service.ArticleService;
+import com.yuan.service.*;
 import com.yuan.utils.DataCacheUtil;
+import com.yuan.vo.ArticleVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author yuanyuan
@@ -26,8 +37,19 @@ import java.util.List;
 @Slf4j
 @Service
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
+    @Resource
+    private SortService sortService;
+    @Resource
+    private LabelService labelService;
+    @Resource
+    private UserService userService;
+    @Resource
+    private CommentService commentService;
+
+
+
     @Override
-    public List<Article> listArticle(SearchArticleParam searchArticleParam,String  authorization) {
+    public List<ArticleVo> listArticle(SearchArticleParam searchArticleParam, String  authorization) {
 
         QueryWrapper<Article> queryWrapper=new QueryWrapper<>();
         if (StringUtils.hasText(searchArticleParam.getSearchKey())) {
@@ -52,10 +74,38 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         IPage<Article> page=new Page<>(searchArticleParam.getCurrent(),searchArticleParam.getSize());
         page= baseMapper.selectPage(page, queryWrapper);
         List<Article> records = page.getRecords();
+        List<ArticleVo> collect=new ArrayList<>();
+        if (!CollectionUtils.isEmpty(records)) {
+             collect = records.stream().map(article -> {
+                ArticleVo articleVO = buildArticleVO(article);
+                return articleVO;
+            }).collect(Collectors.toList());
+        }
+        log.info("***ArticleServiceImpl.listArticle业务结束，结果:{}", collect);
 
-        log.info("***ArticleServiceImpl.listArticle业务结束，结果:{}", records);
-
-
-        return records;
+        return collect;
     }
+    /**
+     * 封装对象
+     * @param article
+     * @return
+     */
+    private ArticleVo buildArticleVO(Article article){
+        ArticleVo articleVO = new ArticleVo();
+        BeanUtils.copyProperties(article, articleVO);
+        if (!StringUtils.hasText(articleVO.getArticleCover())) {
+           // 没有封面就随机封面，还没做好
+            articleVO.setArticleCover("http://rqldcqw23.hn-bkt.clouddn.com/articleCover/Sara11677397871718631.jpg");
+        }
+        articleVO.setSort(sortService.getById(articleVO.getSortId()));
+        articleVO.setLabel(labelService.getById(articleVO.getLabelId()));
+        articleVO.setUsername(userService.getById(articleVO.getUserId()).getUsername());
+        QueryWrapper<Comment> commentQueryWrapper=new QueryWrapper<>();
+        commentQueryWrapper.eq("type", CommentTypeEnum.COMMENT_TYPE_ARTICLE.getCode());
+        commentQueryWrapper.eq("source", articleVO.getId());
+        articleVO.setCommentCount(commentService.count(commentQueryWrapper));
+        return articleVO;
+    }
+
+
 }

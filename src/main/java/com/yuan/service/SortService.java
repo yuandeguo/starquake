@@ -5,6 +5,7 @@ import com.yuan.pojo.Sort;
 import com.yuan.pojo.User;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author yuanyuan
@@ -14,4 +15,7 @@ import java.util.List;
  */
 public interface SortService extends IService<Sort> {
 
+    List<Sort> getSortInfo();
+
+    Map<String, List> listSortAndLabel();
 }

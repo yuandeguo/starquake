@@ -52,7 +52,9 @@ public class Sort implements Serializable {
      */
     @TableField("priority")
     private Integer priority;
-
+    /**
+     * 文章数量
+     */
     @TableField(exist = false)
     private Integer countOfSort;
     /**

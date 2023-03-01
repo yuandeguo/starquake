@@ -3,6 +3,7 @@ package com.yuan.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yuan.params.SearchArticleParam;
 import com.yuan.pojo.Article;
+import com.yuan.vo.ArticleVo;
 
 import java.util.List;
 
@@ -13,5 +14,5 @@ import java.util.List;
  * @Description null
  */
 public interface ArticleService extends IService<Article> {
-    List<Article> listArticle(SearchArticleParam searchArticleParam,String authorization);
+    List<ArticleVo> listArticle(SearchArticleParam searchArticleParam, String authorization);
 }
