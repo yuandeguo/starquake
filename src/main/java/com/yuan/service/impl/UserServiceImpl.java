@@ -143,7 +143,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public List<User> userList(SearchUserParam searchUserParam) {
+    public IPage<User> userList(SearchUserParam searchUserParam) {
         QueryWrapper<User> queryWrapper=new QueryWrapper<>();
         if (searchUserParam.getUserStatus() != null) {
             queryWrapper.eq("user_status", searchUserParam.getUserStatus());
@@ -167,8 +167,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 u.setOpenId(null);
             });
         }
-
-        log.info("***UserServiceImpl.userList业务结束，结果:{}", records);
-        return records;
+        log.info("***UserServiceImpl.userList业务结束，结果:{}",page.getRecords() );
+        return page;
     }
 }

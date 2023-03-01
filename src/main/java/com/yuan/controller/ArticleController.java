@@ -1,5 +1,6 @@
 package com.yuan.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yuan.annotations.LoginCheck;
 import com.yuan.params.ArticleUpdateStatusParams;
@@ -40,9 +41,8 @@ public class ArticleController {
     @PostMapping("/admin/articleList")
     @LoginCheck(0)
     public R listBossArticle(@RequestBody SearchArticleParam searchArticleParam,@RequestHeader("Authorization") String authorization) {
-        log.info("***ArticleController.listBossArticle业务结束，结果:{}",searchArticleParam );
-      List<ArticleVo> list= articleService.listArticle(searchArticleParam,authorization);
-return R.success(list);
+      IPage<ArticleVo> list= articleService.listArticle(searchArticleParam,authorization);
+      return R.success(list);
     }
 
 /**

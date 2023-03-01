@@ -1,5 +1,6 @@
 package com.yuan.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yuan.params.LoginParam;
 import com.yuan.params.SearchUserParam;
@@ -31,5 +32,5 @@ public interface UserService extends IService<User> {
      * @param searchUserParam
      * @return
      */
-   List<User> userList(SearchUserParam searchUserParam);
+   IPage<User> userList(SearchUserParam searchUserParam);
 }

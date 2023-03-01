@@ -49,7 +49,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
 
     @Override
-    public List<ArticleVo> listArticle(SearchArticleParam searchArticleParam, String  authorization) {
+    public IPage<ArticleVo> listArticle(SearchArticleParam searchArticleParam, String  authorization) {
 
         QueryWrapper<Article> queryWrapper=new QueryWrapper<>();
         if (StringUtils.hasText(searchArticleParam.getSearchKey())) {
@@ -74,6 +74,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         IPage<Article> page=new Page<>(searchArticleParam.getCurrent(),searchArticleParam.getSize());
         page= baseMapper.selectPage(page, queryWrapper);
         List<Article> records = page.getRecords();
+        IPage<ArticleVo> articleIPage=new Page<>();
         List<ArticleVo> collect=new ArrayList<>();
         if (!CollectionUtils.isEmpty(records)) {
              collect = records.stream().map(article -> {
@@ -81,9 +82,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 return articleVO;
             }).collect(Collectors.toList());
         }
-        log.info("***ArticleServiceImpl.listArticle业务结束，结果:{}", collect);
+        articleIPage.setRecords(collect);
+        articleIPage.setTotal(page.getTotal());
+        log.info("***ArticleServiceImpl.listArticle业务结束，结果:{}", articleIPage.getRecords());
 
-        return collect;
+        return articleIPage;
     }
     /**
      * 封装对象
