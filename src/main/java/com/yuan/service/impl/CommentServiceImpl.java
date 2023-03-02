@@ -2,22 +2,32 @@ package com.yuan.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuan.mapper.CommentMapper;
+import com.yuan.myEnum.CodeMsg;
 import com.yuan.myEnum.CommentTypeEnum;
+import com.yuan.myEnum.CommonConst;
 import com.yuan.params.SearchCommentParam;
 import com.yuan.pojo.Article;
 import com.yuan.pojo.Comment;
+import com.yuan.pojo.ResourcePath;
 import com.yuan.pojo.User;
 import com.yuan.service.ArticleService;
 import com.yuan.service.CommentService;
+import com.yuan.service.UserService;
 import com.yuan.utils.DataCacheUtil;
+import com.yuan.utils.R;
+import com.yuan.vo.CommentVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +42,8 @@ import java.util.stream.Collectors;
 public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> implements CommentService {
     @Resource
     ArticleService articleService;
+    @Resource
+    private UserService userService;
     @Override
     public IPage<Comment> searchCommentList(SearchCommentParam searchCommentParam, String authorization) {
         QueryWrapper<Comment> queryWrapper=new QueryWrapper<>();
@@ -63,4 +75,111 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
         log.info("***CommentServiceImpl.searchCommentList业务结束，结果:{}", page.getRecords());
         return page;
     }
+
+    @Override
+    public Integer getCommentCount(Integer source, String type) {
+        QueryWrapper<Comment> wrapper = new QueryWrapper<>();
+       wrapper.eq("source", source)
+                .eq("type", type);
+    return    baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 文章主页查询评论信息
+     * @param searchCommentParam
+     * @return
+     */
+    @Override
+    public R listCommentVo(SearchCommentParam searchCommentParam) {
+        if (searchCommentParam.getSource() == null || !StringUtils.hasText(searchCommentParam.getCommentType())) {
+            return R.fail(CodeMsg.PARAMETER_ERROR);
+        }
+
+        if (CommentTypeEnum.COMMENT_TYPE_ARTICLE.getCode().equals(searchCommentParam.getCommentType())) {
+
+            Article one = articleService.getById(searchCommentParam.getSource());
+            if (one != null && !one.getCommentStatus()) {
+                return R.fail("评论功能已关闭！");
+            }
+        }
+        IPage<Comment> page=new Page<>(searchCommentParam.getCurrent(),searchCommentParam.getSize());
+        QueryWrapper<Comment> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("source",searchCommentParam.getSource());
+        queryWrapper.eq("type",searchCommentParam.getCommentType());
+
+        if (searchCommentParam.getFloorCommentId() != null) { //查找子评论
+
+            queryWrapper.eq("floor_comment_id",searchCommentParam.getFloorCommentId());
+            queryWrapper.orderByAsc("create_time");
+            IPage<Comment> iPageChildComments = baseMapper.selectPage(page, queryWrapper);
+
+
+
+
+            List<Comment> childComments = iPageChildComments.getRecords();
+            IPage<CommentVo> iPageChildCommentsVo=new Page<>();
+            List<CommentVo> childCommentsVO = childComments.stream().map(cc -> buildCommentVO(cc)).collect(Collectors.toList());
+            iPageChildCommentsVo.setRecords(childCommentsVO);
+            iPageChildCommentsVo.setTotal(iPageChildComments.getTotal());
+
+
+
+            return R.success(iPageChildCommentsVo);
+        }
+        else{
+            /**
+             * 第一条评论
+             */
+            queryWrapper.orderByDesc("create_time");
+            queryWrapper.eq("parent_comment_id",0);
+            IPage<Comment> iPage = baseMapper.selectPage(page, queryWrapper);
+            List<Comment> comments = iPage.getRecords();
+            if (CollectionUtils.isEmpty(comments)) {
+                return R.success(null);
+            }
+
+            IPage<CommentVo> iPageCommentVo=new Page<>();
+            List<CommentVo> ccVO = comments.stream().map(cc ->buildCommentVO(cc)).collect(Collectors.toList());
+
+            for(CommentVo item :ccVO)
+            {
+                IPage<Comment> childPage=new Page<>(1,5);
+                QueryWrapper<Comment> queryWrapperChild=new QueryWrapper<>();
+                queryWrapperChild.eq("source",searchCommentParam.getSource());
+                queryWrapperChild.eq("type",searchCommentParam.getCommentType());
+                queryWrapperChild.eq("floor_comment_id",item.getId());
+                queryWrapperChild.orderByAsc("create_time");
+                IPage<Comment> iPageChildComments = baseMapper.selectPage(childPage, queryWrapperChild);
+
+                List<Comment> childComments = iPageChildComments.getRecords();
+                IPage<CommentVo> iPageChildCommentsVo=new Page<>();
+                List<CommentVo> childCommentsVO = childComments.stream().map(cc -> buildCommentVO(cc)).collect(Collectors.toList());
+                iPageChildCommentsVo.setRecords(childCommentsVO);
+                iPageChildCommentsVo.setTotal(iPageChildComments.getTotal());
+                item.setChildComments(iPageChildCommentsVo);
+            }
+            iPageCommentVo.setRecords(ccVO);
+            iPageCommentVo.setTotal(iPage.getTotal());
+            return R.success(iPageCommentVo);
+        }
+
+    }
+
+    private CommentVo buildCommentVO(Comment c) {
+        CommentVo commentVO = new CommentVo();
+        BeanUtils.copyProperties(c, commentVO);
+        User user = userService.getById(commentVO.getUserId());
+        if (user != null) {
+            commentVO.setAvatar(user.getAvatar());
+            commentVO.setUsername(user.getUsername());
+        }
+        if (commentVO.getParentUserId() != null) {
+            User u = userService.getById(commentVO.getParentUserId());
+            if (u != null) {
+                commentVO.setParentUsername(u.getUsername());
+            }
+        }
+        return commentVO;
+    }
+
 }

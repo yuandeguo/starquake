@@ -39,30 +39,28 @@ public class ArticleController {
      * 查询文章列表
      */
     @PostMapping("/admin/articleList")
-    @LoginCheck(0)
     public R listBossArticle(@RequestBody SearchArticleParam searchArticleParam,@RequestHeader("Authorization") String authorization) {
       IPage<ArticleVo> list= articleService.listArticle(searchArticleParam,authorization);
       return R.success(list);
     }
 
-/**
- *更新文章的状态
- */
-@PostMapping("/admin/updateArticleStatus")
-@LoginCheck(0)
-public R updateArticleStatus(@RequestBody ArticleUpdateStatusParams articleUpdateStatusParams) {
-    log.info("***ArticleController.listBossArticle业务结束，结果:{}",articleUpdateStatusParams );
-    Article article=new Article();
-    article.setId(articleUpdateStatusParams.getArticleId());
-    article.setViewStatus(articleUpdateStatusParams.getViewStatus());
-    article.setCommentStatus(articleUpdateStatusParams.getCommentStatus());
-    article.setRecommendStatus(articleUpdateStatusParams.getRecommendStatus());
-    boolean b = articleService.updateById(article);
-    if(!b) {
-        return R.fail("更新失败");
+    /**
+     *更新文章的状态
+     */
+    @PostMapping("/admin/updateArticleStatus")
+    public R updateArticleStatus(@RequestBody ArticleUpdateStatusParams articleUpdateStatusParams) {
+        log.info("***ArticleController.listBossArticle业务结束，结果:{}",articleUpdateStatusParams );
+        Article article=new Article();
+        article.setId(articleUpdateStatusParams.getArticleId());
+        article.setViewStatus(articleUpdateStatusParams.getViewStatus());
+        article.setCommentStatus(articleUpdateStatusParams.getCommentStatus());
+        article.setRecommendStatus(articleUpdateStatusParams.getRecommendStatus());
+        boolean b = articleService.updateById(article);
+        if(!b) {
+            return R.fail("更新失败");
+        }
+         return R.success();
     }
-     return R.success();
-}
 
     /**
      * 根据文章id删除文章
@@ -93,11 +91,11 @@ public R updateArticleStatus(@RequestBody ArticleUpdateStatusParams articleUpdat
         }
         return R.success(byId);
     }
-/**
- * 更新文章
- */
-@PostMapping("/admin/updateArticle")
-public R updateArticle(@Validated @RequestBody Article article, BindingResult result,@RequestHeader("Authorization") String authorization) {
+    /**
+     * 更新文章
+     */
+    @PostMapping("/admin/updateArticle")
+    public R updateArticle(@Validated @RequestBody Article article, BindingResult result,@RequestHeader("Authorization") String authorization) {
     if(result.hasErrors())
         return R.fail("文章参数错误");
     log.info("***ArticleController.updateArticle业务结束，结果:{}", article);
@@ -109,6 +107,14 @@ public R updateArticle(@Validated @RequestBody Article article, BindingResult re
     }
     return R.success();
 }
+
+    /**
+     * 保存文章
+     * @param article
+     * @param result
+     * @param authorization
+     * @return
+     */
     @PostMapping("/admin/saveArticle")
     public R saveArticle(@Validated @RequestBody Article article, BindingResult result,@RequestHeader("Authorization") String authorization) {
         if(result.hasErrors()) {
@@ -130,8 +136,23 @@ public R updateArticle(@Validated @RequestBody Article article, BindingResult re
         }
         return R.success();
     }
+    /**
+     * 查询文章List
+     */
+    @PostMapping("/listArticle")
+    public R listArticle(@RequestBody SearchArticleParam searchArticleParam) {
+        IPage<ArticleVo> list= articleService.listArticleByFront(searchArticleParam);
+        return R.success(list);
+    }
 
-
-
-
+    /**
+     * 获取文章信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/getArticleById")
+    public R getArticleByIdFront(@RequestParam("id") Integer id) {
+        ArticleVo byId = articleService.getByIdToFront(id);
+        return R.success(byId);
+    }
 }

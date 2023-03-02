@@ -16,4 +16,8 @@ import java.util.List;
  */
 public interface ArticleService extends IService<Article> {
     IPage<ArticleVo> listArticle(SearchArticleParam searchArticleParam, String authorization);
+
+    IPage<ArticleVo> listArticleByFront(SearchArticleParam searchArticleParam);
+
+    ArticleVo getByIdToFront(Integer id);
 }

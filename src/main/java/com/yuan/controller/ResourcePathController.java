@@ -8,6 +8,8 @@ import com.yuan.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 /**
  * @author yuanyuan
  * @version V1.0
@@ -62,6 +64,7 @@ public class ResourcePathController {
 
     @PostMapping("/admin/saveResourcePath")
     public R saveResourcePath(@RequestBody ResourcePath resource){
+        resource.setCreateTime(LocalDateTime.now());
         boolean b = resourcePathService.save(resource);
         if(!b) {
             return R.fail("资源路径保存失败");

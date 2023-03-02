@@ -55,9 +55,25 @@ public class WebInfoController {
         else {
             return R.success(webInfo);
         }
-
     }
 
+    /**
+     * 网站首页获取 网站信息
+     */
+    @GetMapping("/getWebInfo")
+    public R getWebInfo0() {
+        WebInfo webInfo = webInfoService.getWebInfo();
+        if(webInfo==null)
+        {
+            return R.fail("网站没有信息");
+        }
+        else {
+            webInfo.setRandomAvatar(null);
+            webInfo.setRandomCover(null);
+            webInfo.setRandomName(null);
 
+            return R.success(webInfo);
+        }
+    }
 
 }

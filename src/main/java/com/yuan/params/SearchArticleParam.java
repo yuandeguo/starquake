@@ -18,4 +18,5 @@ public class SearchArticleParam extends PageParam{
     private Integer labelId;
     private Integer sortId;
     private Boolean isBossSearch;
+
 }

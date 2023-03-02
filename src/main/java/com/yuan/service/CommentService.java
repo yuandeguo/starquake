@@ -4,9 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yuan.params.SearchCommentParam;
 import com.yuan.pojo.Comment;
-import com.yuan.pojo.Label;
-
-import java.util.List;
+import com.yuan.utils.R;
+import com.yuan.vo.CommentVo;
 
 /**
  * @author yuanyuan
@@ -16,4 +15,8 @@ import java.util.List;
  */
 public interface CommentService extends IService<Comment> {
     IPage<Comment> searchCommentList(SearchCommentParam searchCommentParam, String authorization);
+
+    Integer getCommentCount(Integer source, String type);
+
+    R listCommentVo(SearchCommentParam searchCommentParam);
 }

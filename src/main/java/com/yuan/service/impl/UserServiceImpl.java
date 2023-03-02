@@ -47,8 +47,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         password = new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(password));//解密处理
 
-        log.info("***UserServiceImpl.login业务，结果:{}",password );
-
+        log.info("***UserServiceImpl.login业务，结果:{}",DigestUtils.md5DigestAsHex(password.getBytes()) );
+        log.info("***UserServiceImpl.login业务结束，结果:{}",username );
         User user = lambdaQuery().and(wrapper -> wrapper
                         .eq(User::getUsername, username)
                         .or()
@@ -57,7 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         .eq(User::getPhoneNumber, username))
                 .eq(User::getPassword, DigestUtils.md5DigestAsHex(password.getBytes()))
                 .one();
-
+        System.out.println(user);
         if (user == null) {
             return R.fail("账号/密码错误，请重新输入！");
         }

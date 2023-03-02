@@ -17,4 +17,5 @@ public class SearchCommentParam extends PageParam implements Serializable {
     private String commentType;
     @NotNull(message = "评论来源标识不能为空")
     private Integer source;
+    private Integer floorCommentId;
 }

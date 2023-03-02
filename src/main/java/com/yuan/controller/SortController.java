@@ -39,10 +39,13 @@ public class SortController {
 }
 @GetMapping("/getSortInfo")
 public R getSortInfo(){
-
     List<Sort> list =sortService.getSortInfo();
     return R.success(list);
 }
+
+
+
+
 
     /**
      * 删除标签

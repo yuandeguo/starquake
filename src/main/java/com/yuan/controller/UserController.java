@@ -1,5 +1,6 @@
 package com.yuan.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yuan.annotations.LoginCheck;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author yuanyuan
@@ -37,11 +39,12 @@ public class UserController {
      * 用户名、邮箱、手机号/密码登录
      */
     @PostMapping("/login")
-    public R login(@RequestBody @Valid LoginParam loginParam, @Validated BindingResult bindingResult) {
+    public R login(@RequestBody @Validated LoginParam loginParam,BindingResult bindingResult) {
         if(bindingResult.hasErrors())
         {
             R.fail("账号/密码不能为空，请重新输入！");
         }
+        log.info("***UserController.login业务结束，结果:{}",loginParam );
         return userService.login(loginParam);
     }
     /**
@@ -104,6 +107,41 @@ public class UserController {
 
         return R.success();
     }
+
+    /**
+     * 需要改好
+     * @param user
+     * @param authorization
+     * @return
+     */
+    @PostMapping("/updateUserInfo")
+    public R updateUserInfo(@RequestBody User user,@RequestHeader("Authorization") String authorization) {
+        User oriUser=   (User)DataCacheUtil.get(authorization);
+        if(oriUser==null)
+            return R.fail("修改失败，请重新登录");
+        if(user.getUsername()!=null)
+        {
+            QueryWrapper<User> queryWrapper=new QueryWrapper<>();
+            queryWrapper.eq("username",user.getUsername());
+            queryWrapper.ne("id",oriUser.getId());
+            User one = userService.getOne(queryWrapper);
+            if(one!=null)
+                return R.fail("用户名存在");
+        }
+        user.setId(oriUser.getId());
+        boolean b = userService.updateById(user);
+        if(!b)
+            return R.fail("修改失败");
+        return R.success();
+    }
+
+
+
+    @PostMapping("/updateForForgetPassword")
+    public R updateForForgetPassword(@RequestBody User user,@RequestHeader("Authorization") String authorization) {
+        return R.success();
+    }
+
 
 
 

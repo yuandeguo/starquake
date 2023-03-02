@@ -88,6 +88,54 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
         return articleIPage;
     }
+
+    /**
+     * 主界面查找文章
+     * @param searchArticleParam
+     * @return
+     */
+    @Override
+    public IPage<ArticleVo> listArticleByFront(SearchArticleParam searchArticleParam) {
+        QueryWrapper<Article> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("view_status",1);
+        queryWrapper.orderByDesc("create_time");
+        if (searchArticleParam.getRecommendStatus() != null) {
+            queryWrapper.eq("recommend_status", searchArticleParam.getRecommendStatus());
+        }
+        if (searchArticleParam.getSortId() != null) {
+            queryWrapper.eq("sort_id", searchArticleParam.getSortId());
+        }
+        if (searchArticleParam.getLabelId() != null) {
+            queryWrapper.eq("label_id", searchArticleParam.getLabelId());
+        }
+        IPage<Article> page=new Page<>(searchArticleParam.getCurrent(),searchArticleParam.getSize());
+        page= baseMapper.selectPage(page, queryWrapper);
+        List<Article> records = page.getRecords();
+        IPage<ArticleVo> articleIPage=new Page<>();
+        List<ArticleVo> collect=new ArrayList<>();
+        if (!CollectionUtils.isEmpty(records)) {
+            collect = records.stream().map(article -> {
+                ArticleVo articleVO = buildArticleVO(article);
+                return articleVO;
+            }).collect(Collectors.toList());
+        }
+        articleIPage.setRecords(collect);
+        articleIPage.setTotal(page.getTotal());
+        log.info("***ArticleServiceImpl.listArticle业务结束，结果:{}", articleIPage.getRecords());
+
+        return articleIPage;
+
+
+    }
+
+    @Override
+    public ArticleVo getByIdToFront(Integer id) {
+        Article article = baseMapper.selectById(id);
+        ArticleVo articleVO = buildArticleVO(article);
+        return articleVO;
+
+    }
+
     /**
      * 封装对象
      * @param article
