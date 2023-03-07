@@ -11,5 +11,7 @@ import com.yuan.utils.R;
  * @Description null
  */
 public interface WebInfoService extends IService<WebInfo> {
-    WebInfo getWebInfo();
+    R getWebInfo();
+
+    R updateWebInfo(WebInfo webInfo);
 }

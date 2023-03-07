@@ -1,5 +1,6 @@
 package com.yuan.service.impl;
 
+import cn.hutool.core.date.LocalDateTimeUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -9,6 +10,9 @@ import com.yuan.params.SearchResourceParam;
 import com.yuan.pojo.Resource;
 import com.yuan.pojo.User;
 import com.yuan.service.ResourceService;
+import com.yuan.utils.DataCacheUtil;
+import com.yuan.utils.R;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,10 +23,11 @@ import org.springframework.util.StringUtils;
  * @Description null
  */
 @Service
+@Slf4j
 public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
 
     @Override
-    public IPage<Resource> listResource(SearchResourceParam searchResourceParam) {
+    public R listResource(SearchResourceParam searchResourceParam) {
         QueryWrapper<Resource> queryWrapper=new QueryWrapper<>();
         if(StringUtils.hasText(searchResourceParam.getResourceType()))
         {
@@ -31,7 +36,24 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         queryWrapper.orderByDesc("id");
         IPage<Resource> page=new Page<>(searchResourceParam.getCurrent(),searchResourceParam.getSize());
         page= baseMapper.selectPage(page, queryWrapper);
-         return page;
+         return R.success(page);
 
+    }
+
+    @Override
+    public R saveResource(Resource resource, String authorization) {
+        if (!StringUtils.hasText(resource.getType()) || !StringUtils.hasText(resource.getPath())) {
+            return R.fail("资源类型和资源路径不能为空！");
+        }
+        Resource re = new Resource();
+        re.setPath(resource.getPath());
+        re.setType(resource.getType());
+        re.setSize(resource.getSize());
+        re.setMimeType(resource.getMimeType());
+        re.setUserId(((User) DataCacheUtil.get(authorization)).getId());
+        re.setCreateTime( LocalDateTimeUtil.now());
+        save(re);
+        log.info("***ResourceController.saveResource业务结束，结果:{}",re );
+        return R.success();
     }
 }

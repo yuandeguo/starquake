@@ -1,18 +1,11 @@
 package com.yuan.controller;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.yuan.pojo.Article;
-import com.yuan.pojo.Label;
 import com.yuan.pojo.Sort;
-import com.yuan.service.ArticleService;
-import com.yuan.service.LabelService;
 import com.yuan.service.SortService;
+import com.yuan.utils.DataCacheUtil2;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,14 +26,14 @@ public class SortController {
 
 @GetMapping("/listSortAndLabel")
     public R listSortAndLabel(){
-    Map<String, List> map=sortService.listSortAndLabel();
+  return sortService.listSortAndLabel();
 
-    return R.success(map);
+
 }
 @GetMapping("/getSortInfo")
 public R getSortInfo(){
-    List<Sort> list =sortService.getSortInfo();
-    return R.success(list);
+    return sortService.getSortInfo();
+
 }
 
 
@@ -55,34 +48,35 @@ public R getSortInfo(){
     @GetMapping("/admin/deleteSort")
     public R deleteSort(@RequestParam("id") Integer id)
 {
-    boolean b = sortService.removeById(id);
-    if(!b) {
-        return R.fail("分类删除失败");
-        }
+    return sortService.deleteSort(id);
 
-    return R.success();
 }
 
 
     @PostMapping("/admin/saveSort")
     public R saveSort(@RequestBody Sort sort)
     {
-        boolean b = sortService.save(sort);
-        if(!b) {
-            return R.fail("分类保存失败");
-        }
-        return R.success();
+        return sortService.saveSort(sort);
+
     }
     @PostMapping("/admin/updateSort")
     public R updateSort(@RequestBody Sort sort)
     {
-        boolean b = sortService.updateById(sort);
-        if(!b) {
-            return R.fail("分类修改失败");
-        }
-        return R.success();
+        return sortService.updateSort(sort);
+
     }
 
+
+    @Resource
+    private DataCacheUtil2 redisService;
+
+    @PostMapping("/redis")
+    public R updateSort()
+    {   redisService.SetString("ceshi","123");
+
+        String last= redisService.getString("ceshi");
+return R.success(last);
+    }
 
 
 

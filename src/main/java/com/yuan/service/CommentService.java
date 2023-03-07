@@ -14,9 +14,13 @@ import com.yuan.vo.CommentVo;
  * @Description null
  */
 public interface CommentService extends IService<Comment> {
-    IPage<Comment> searchCommentList(SearchCommentParam searchCommentParam, String authorization);
+   R searchCommentList(SearchCommentParam searchCommentParam, String authorization);
 
     Integer getCommentCount(Integer source, String type);
 
     R listCommentVo(SearchCommentParam searchCommentParam);
+
+    R deleteComment(Integer id);
+
+    R saveComment(Comment comment, String authorization);
 }

@@ -31,30 +31,16 @@ public class WebInfoController {
      */
     @PostMapping("/admin/updateWebInfo")
     public R updateWebInfo(@RequestBody WebInfo webInfo) {
+      return   webInfoService.updateWebInfo(webInfo);
 
-        log.info("***WebInfoController.updateWebInfo业务结束，结果:{}", webInfo);
-//注意：如果实体对象中某个属性为 null，不会更新该属性（即不会把对应的数据库字段值设置为 null）
-        boolean b = webInfoService.updateById(webInfo);
-        WebInfo newWebInfo = webInfoService.getWebInfo();
-        if(!b) {
-            R.fail("更新失败");
-        }
-        DataCacheUtil.put(CommonConst.WEB_INFO,newWebInfo);
-        return R.success();
     }
     /**
      * 这是管理员获取 网站信息
      */
     @GetMapping("/admin/getWebInfo")
     public R getWebInfo() {
-        WebInfo webInfo = webInfoService.getWebInfo();
-        if(webInfo==null)
-        {
-            return R.fail("网站没有信息");
-        }
-        else {
-            return R.success(webInfo);
-        }
+       return  webInfoService.getWebInfo();
+
     }
 
     /**
@@ -62,18 +48,8 @@ public class WebInfoController {
      */
     @GetMapping("/getWebInfo")
     public R getWebInfo0() {
-        WebInfo webInfo = webInfoService.getWebInfo();
-        if(webInfo==null)
-        {
-            return R.fail("网站没有信息");
-        }
-        else {
-            webInfo.setRandomAvatar(null);
-            webInfo.setRandomCover(null);
-            webInfo.setRandomName(null);
+      return  webInfoService.getWebInfo();
 
-            return R.success(webInfo);
-        }
     }
 
 }

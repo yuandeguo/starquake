@@ -2,14 +2,9 @@ package com.yuan.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.yuan.params.LoginParam;
-import com.yuan.params.SearchUserParam;
+import com.yuan.params.*;
 import com.yuan.pojo.User;
-import com.yuan.pojo.WebInfo;
-import com.yuan.vo.UserVO;
 import com.yuan.utils.R;
-
-import java.util.List;
 
 /**
  * @author yuanyuan
@@ -33,4 +28,30 @@ public interface UserService extends IService<User> {
      * @return
      */
    IPage<User> userList(SearchUserParam searchUserParam);
+
+    /**
+     * 邮箱绑定或者修改邮箱绑定
+     * flag=1是手机，2是邮箱
+     * @param place
+     * @param flag
+     * @return
+     */
+    R emailForBind(String place, Integer flag,String authorization);
+
+    R updateSecretInfo(UserUpdateSecretInfoParam userUpdateSecretInfoParam, User user);
+
+    R getCodeForForgetPasswordOrRegister(String place, Integer flag);
+
+    R updateForForgetPassword(ForForgetPasswordParam forForgetPasswordParam);
+
+    /**
+     * 用户注册
+     * @param userRegisterParam
+     * @return
+     */
+    R register(UserRegisterParam userRegisterParam);
+
+    R updateUserInfo(User user, String authorization);
+
+    R changeUserStatusOrTypeParam(UserStatusOrTypeParam userStatusOrTypeParam);
 }

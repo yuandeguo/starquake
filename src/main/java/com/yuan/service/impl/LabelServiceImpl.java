@@ -7,6 +7,7 @@ import com.yuan.pojo.Label;
 import com.yuan.pojo.Resource;
 import com.yuan.service.LabelService;
 import com.yuan.service.ResourceService;
+import com.yuan.utils.R;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,5 +20,30 @@ import org.springframework.stereotype.Service;
 public class LabelServiceImpl extends ServiceImpl<LabelMapper, Label> implements LabelService {
 
 
+    @Override
+    public R deleteLabel(Integer id) {
+        boolean b = removeById(id);
+        if(!b) {
+            return R.fail("标签删除失败");
+        }
+        return R.success();
+    }
 
+    @Override
+    public R saveLabel(Label label) {
+        boolean b = save(label);
+        if(!b) {
+            return R.fail("标签保存失败");
+        }
+        return R.success();
+    }
+
+    @Override
+    public R updateLabel(Label label) {
+        boolean b = updateById(label);
+        if(!b) {
+            return R.fail("标签修改失败");
+        }
+        return R.success();
+    }
 }

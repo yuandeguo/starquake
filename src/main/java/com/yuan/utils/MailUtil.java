@@ -75,20 +75,8 @@ public class MailUtil {
             "                <span style=\"color: #DB214B\">有朋自远方来</span>\n" +
             "            </a>\n" +
             "        </div>\n" +
-            "        <div style=\"margin-top: 20px;font-size: 12px;color: #00000045\">\n" +
-            "            此邮件由 %s 自动发出，直接回复无效（一天最多发送 " + CommonConst.COMMENT_IM_MAIL_COUNT + " 条通知邮件），退订请联系站长。\n" +
-            "        </div>\n" +
             "    </div>\n" +
             "</div>";
-
-    /**
-     * 发件人
-     */
-    public static final String replyMail = "你之前的评论收到来自 %s 的回复";
-    public static final String commentMail = "你的文章 %s 收到来自 %s 的评论";
-    public static final String messageMail = "你收到来自 %s 的留言";
-    public static final String loveMail = "你收到来自 %s 的祝福";
-    public static final String imMail = "你收到来自 %s 的消息";
 
     @Resource
     private JavaMailSender mailSender;
@@ -105,7 +93,7 @@ public class MailUtil {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mailSender.createMimeMessage(), true);
             //邮件发信人
             mimeMessageHelper.setFrom(sendMailer);
-            //邮件收信人1或多个
+            //邮件收信人1或多个  new String[0]起到模板的作用
             mimeMessageHelper.setTo(to.toArray(new String[0]));
             //邮件主题
             mimeMessageHelper.setSubject(subject);

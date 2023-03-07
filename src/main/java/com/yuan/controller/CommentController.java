@@ -34,17 +34,14 @@ public class CommentController {
     @PostMapping("/admin/commentList")
     public R commentList(@RequestBody SearchCommentParam searchCommentParam,@RequestHeader("Authorization") String authorization)
     {
-        IPage<Comment> list= commentService.searchCommentList(searchCommentParam,authorization);
-        return R.success(list);
+        return commentService.searchCommentList(searchCommentParam,authorization);
+
     }
     @GetMapping("/admin/deleteComment")
     public R deleteComment(@RequestParam("id") Integer id)
     {
-        boolean b = commentService.removeById(id);
-        if(!b) {
-            return R.fail("评论删除失败");
-        }
-        return R.success();
+        return commentService.deleteComment(id);
+
     }
 
     /**
@@ -62,8 +59,8 @@ public class CommentController {
      */
     @PostMapping("/listComment")
     public R listComment(@RequestBody SearchCommentParam SearchCommentParam) {
-        R iPage= commentService.listCommentVo(SearchCommentParam);
-        return iPage;
+        return commentService.listCommentVo(SearchCommentParam);
+
 
     }
 /**
@@ -71,18 +68,9 @@ public class CommentController {
  */
     @PostMapping("/saveComment")
     public R saveComment(@Validated @RequestBody Comment comment,@RequestHeader("Authorization") String authorization) {
-     User user=   (User)DataCacheUtil.get(authorization);
-        if(user==null)
-        {
-            return R.fail("评论保存失败,请重新登录");
-        }
-        comment.setUserId(user.getId());
-        comment.setCreateTime(LocalDateTime.now());
-        boolean save = commentService.save(comment);
-        if(!save) {
-            return R.fail("评论保存失败");
-        }
-        return R.success();
+
+        return commentService.saveComment(comment,authorization);
+
     }
 
 

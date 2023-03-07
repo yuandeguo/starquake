@@ -39,25 +39,14 @@ public class ResourceController {
      */
     @PostMapping("/saveResource")
     public R saveResource(@RequestBody Resource resource, @RequestHeader("Authorization") String authorization) {
-        if (!StringUtils.hasText(resource.getType()) || !StringUtils.hasText(resource.getPath())) {
-            return R.fail("资源类型和资源路径不能为空！");
-        }
-        Resource re = new Resource();
-        re.setPath(resource.getPath());
-        re.setType(resource.getType());
-        re.setSize(resource.getSize());
-        re.setMimeType(resource.getMimeType());
-        re.setUserId(((User)DataCacheUtil.get(authorization)).getId());
-        re.setCreateTime( LocalDateTimeUtil.now());
-        resourceService.save(re);
-        log.info("***ResourceController.saveResource业务结束，结果:{}",re );
-        return R.success();
+     return   resourceService.saveResource(resource,authorization);
+
     }
     @PostMapping("/admin/listResource")
     public R listResource(@RequestBody SearchResourceParam searchResourceParam)
     {
-    IPage<Resource> page= resourceService.listResource(searchResourceParam);
-        return R.success(page);
+   return resourceService.listResource(searchResourceParam);
+
     }
     @GetMapping("/admin/changeResourceStatus")
     public R changeResourceStatus(@RequestParam("id") Integer id,@RequestParam("flag") boolean flag)

@@ -2,8 +2,10 @@ package com.yuan.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yuan.params.PageParam;
 import com.yuan.params.SearchResourcePathParam;
 import com.yuan.pojo.ResourcePath;
+import com.yuan.utils.R;
 
 /**
  * @author yuanyuan
@@ -12,5 +14,7 @@ import com.yuan.pojo.ResourcePath;
  * @Description null
  */
 public interface ResourcePathService extends IService<ResourcePath> {
-    IPage<ResourcePath> listResourcePath(SearchResourcePathParam resourcePathParam);
+   R listResourcePath(SearchResourcePathParam resourcePathParam);
+
+    R listResourcePathOnFront(PageParam pageParam);
 }

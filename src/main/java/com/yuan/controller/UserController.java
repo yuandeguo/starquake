@@ -5,9 +5,7 @@ import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWra
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yuan.annotations.LoginCheck;
 import com.yuan.myEnum.CommonConst;
-import com.yuan.params.LoginParam;
-import com.yuan.params.SearchUserParam;
-import com.yuan.params.UserStatusOrTypeParam;
+import com.yuan.params.*;
 import com.yuan.pojo.User;
 import com.yuan.utils.DataCacheUtil;
 import com.yuan.vo.UserVO;
@@ -44,7 +42,6 @@ public class UserController {
         {
             R.fail("账号/密码不能为空，请重新输入！");
         }
-        log.info("***UserController.login业务结束，结果:{}",loginParam );
         return userService.login(loginParam);
     }
     /**
@@ -76,72 +73,75 @@ public class UserController {
     @PostMapping("/admin/changeUserStatusOrTypeParam")
     @LoginCheck(0)
     public R changeUserStatusOrTypeParam(@RequestBody UserStatusOrTypeParam userStatusOrTypeParam) {
-        log.info("***UserController.changeUserStatus业务结束，结果:{}",userStatusOrTypeParam );
-        User user=new User();
-        user.setId(userStatusOrTypeParam.getUserId());
-        user.setUserStatus(userStatusOrTypeParam.getUserStatus());
-        user.setUserType(userStatusOrTypeParam.getUserType());
-        boolean b = userService.updateById(user);
-     //   该用户退出登录
-        if(!b)
-        {
-            return R.fail("修改失败");
-        }
-        if(userStatusOrTypeParam.getUserStatus()!=null&&!userStatusOrTypeParam.getUserStatus())
-        {     log.info("***UserController.changeUserStatusOrTypeParam业务结束，结果:{}",userStatusOrTypeParam.getUserStatus() );
+        return userService.changeUserStatusOrTypeParam(userStatusOrTypeParam);
 
-            //管理员
-            if(DataCacheUtil.get(CommonConst.ADMIN_TOKEN + user.getId()) != null)
-            {
-                String token = (String) DataCacheUtil.get(CommonConst.ADMIN_TOKEN + user.getId());
-                DataCacheUtil.remove(CommonConst.ADMIN_TOKEN + user.getId());
-                DataCacheUtil.remove(token);
-            }//普通用户
-            else if (DataCacheUtil.get(CommonConst.USER_TOKEN + user.getId()) != null)
-            {
-                String token = (String) DataCacheUtil.get(CommonConst.USER_TOKEN + user.getId());
-                DataCacheUtil.remove(CommonConst.USER_TOKEN + user.getId());
-                DataCacheUtil.remove(token);
-            }
-        }
-
-        return R.success();
     }
 
     /**
-     * 需要改好
      * @param user
      * @param authorization
      * @return
      */
     @PostMapping("/updateUserInfo")
     public R updateUserInfo(@RequestBody User user,@RequestHeader("Authorization") String authorization) {
-        User oriUser=   (User)DataCacheUtil.get(authorization);
-        if(oriUser==null)
-            return R.fail("修改失败，请重新登录");
-        if(user.getUsername()!=null)
-        {
-            QueryWrapper<User> queryWrapper=new QueryWrapper<>();
-            queryWrapper.eq("username",user.getUsername());
-            queryWrapper.ne("id",oriUser.getId());
-            User one = userService.getOne(queryWrapper);
-            if(one!=null)
-                return R.fail("用户名存在");
-        }
-        user.setId(oriUser.getId());
-        boolean b = userService.updateById(user);
-        if(!b)
-            return R.fail("修改失败");
-        return R.success();
+return userService.updateUserInfo(user,authorization);
     }
 
+    /**
+     * 邮箱绑定或者修改
+     * @param place
+     * @param flag
+     * @return
+     */
+    @GetMapping("/getCodeForBind")
+    public R getCodeForBind(@RequestParam("place") String place, @RequestParam("flag") Integer flag,@RequestHeader("Authorization") String authorization) {
+        return userService.emailForBind(place, flag,authorization);
+    }
+    /**
+     * 更新邮箱、手机号
+     * <p>
+     * 1 手机号
+     * 2 邮箱
+     * 3 密码：place=老密码&password=新密码
+     */
+    @PostMapping("/updateSecretInfo")
+    @LoginCheck
+    public R updateSecretInfo(@RequestBody UserUpdateSecretInfoParam userUpdateSecretInfoParam,@RequestHeader("Authorization") String authorization) {
+        User user=(User)DataCacheUtil.get(authorization);
+        DataCacheUtil.remove(CommonConst.USER_CACHE + user.getId().toString());
+        return userService.updateSecretInfo(userUpdateSecretInfoParam,user);
+    }
+    /**
+     * 注册或者忘记密码获取邮箱验证码
+     * @param place
+     * @param flag
+     * @return
+     */
+    @GetMapping("/getCodeForForgetPasswordOrRegister")
+    public R getCodeForForgetPasswordOrRegister(@RequestParam("place") String place, @RequestParam("flag") Integer flag) {
 
+        return userService.getCodeForForgetPasswordOrRegister(place, flag);
+    }
 
+    /**
+     * 忘记密码 更新密码
+     * <p>
+     * 1 手机号
+     * 2 邮箱
+     */
     @PostMapping("/updateForForgetPassword")
-    public R updateForForgetPassword(@RequestBody User user,@RequestHeader("Authorization") String authorization) {
-        return R.success();
+    public R updateForForgetPassword(@RequestBody ForForgetPasswordParam forForgetPasswordParam) {
+
+        return userService.updateForForgetPassword(forForgetPasswordParam);
     }
 
+    /**
+     * 用户名/密码注册
+     */
+    @PostMapping("/register")
+    public R register(@Validated @RequestBody UserRegisterParam userRegisterParam) {
+        return userService.register(userRegisterParam);
+    }
 
 
 

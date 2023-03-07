@@ -1,9 +1,11 @@
 package com.yuan.params;
 
 import lombok.Data;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * @author yuanyuan
@@ -12,9 +14,16 @@ import javax.validation.constraints.NotNull;
  * @Description null
  */
 @Data
-public class ForForgetPasswordParam {
-    @NotNull
-   private Integer code;
+public class ForForgetPasswordParam implements Serializable {
+     public static final Long serialVersionUID = 1L;
     @NotBlank
-  private String  password;
+   private String code;
+    @NotBlank
+     private String  password;
+    @NotBlank
+    private  String place;
+    @NotNull
+    private Integer flag;
+
+
 }

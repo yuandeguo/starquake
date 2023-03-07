@@ -1,6 +1,8 @@
 package com.yuan.config;
 
+import com.yuan.interceptor.AuthorityVerifyInterceptor;
 import com.yuan.interceptor.WebInfoHandlerInterceptor;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -10,12 +12,42 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @date 2023/2/27 0:32
  * @Description 增加拦截器
  */
+@Configuration
 public class AddInterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        //可以访问管理员页面，用户登录
         registry.addInterceptor(new WebInfoHandlerInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/user/login", "/admin/**", "/webInfo/getWebInfo", "/webInfo/updateWebInfo");
+                .excludePathPatterns("/user/login",
+                        "/webInfo/getWebInfo",
+                        "/article/admin/**",
+                        "/comment/admin/**",
+                        "/label/admin/**",
+                        "/resource/admin/**",
+                        "/resourcePath/admin/**",
+                        "/sort/admin/**",
+                        "/treeHole/admin/**",
+                        "/user/admin/**",
+                        "/webInfo/admin/**",
+                        "/weiYan/**"
+                        );
+        registry.addInterceptor(new AuthorityVerifyInterceptor())
+                .addPathPatterns(
+                "/article/admin/**",
+                "/comment/admin/**",
+                "/label/admin/**",
+                "/resource/admin/**",
+                "/resourcePath/admin/**",
+                "/sort/admin/**",
+                "/treeHole/admin/**",
+                "/user/admin/**",
+                "/webInfo/admin/**",
+                "/weiYan/**"
+
+            ).excludePathPatterns(
+                        "/weiYan/listWeiYan"
+                )
+
+        ;
     }
 }

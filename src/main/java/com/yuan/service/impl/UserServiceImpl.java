@@ -8,8 +8,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuan.mapper.UserMapper;
 import com.yuan.myEnum.CommonConst;
 import com.yuan.myEnum.ParamsEnum;
-import com.yuan.params.LoginParam;
-import com.yuan.params.SearchUserParam;
+import com.yuan.params.*;
+import com.yuan.pojo.WebInfo;
+import com.yuan.utils.GetRequestParamsUtil;
+import com.yuan.utils.MailUtil;
 import com.yuan.vo.UserVO;
 import com.yuan.pojo.User;
 import com.yuan.service.UserService;
@@ -17,14 +19,18 @@ import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.tio.core.Tio;
 
+import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -37,18 +43,17 @@ import java.util.UUID;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    @Value("${user.code.format}")
+    private String codeFormat;
 
+    @Resource
+    private MailUtil mailUtil;
     @Override
     public R<UserVO> login(LoginParam loginParam) {
         String username=loginParam.getUsername();
         String password=loginParam.getPassword();
         Boolean isAdmin=loginParam.getIsAdmin();
-
-
         password = new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(password));//解密处理
-
-        log.info("***UserServiceImpl.login业务，结果:{}",DigestUtils.md5DigestAsHex(password.getBytes()) );
-        log.info("***UserServiceImpl.login业务结束，结果:{}",username );
         User user = lambdaQuery().and(wrapper -> wrapper
                         .eq(User::getUsername, username)
                         .or()
@@ -57,7 +62,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         .eq(User::getPhoneNumber, username))
                 .eq(User::getPassword, DigestUtils.md5DigestAsHex(password.getBytes()))
                 .one();
-        System.out.println(user);
         if (user == null) {
             return R.fail("账号/密码错误，请重新输入！");
         }
@@ -170,4 +174,270 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         log.info("***UserServiceImpl.userList业务结束，结果:{}",page.getRecords() );
         return page;
     }
+
+    /**
+     * 邮箱绑定或者修改邮箱绑定
+     *
+     * @param place
+     * @param flag
+     * @return
+     */
+    @Override
+    public R emailForBind(String place, Integer flag,String authorization) {
+        int code = new Random().nextInt(900000) + 100000;
+        if (flag == 1) {
+            log.info(place + "---" + "手机验证码---" + code);
+        } else if (flag == 2) {
+            log.info(place + "---" + "邮箱验证码---" + code);
+            List<String> mail = new ArrayList<>();
+            mail.add(place);
+//            获取样式
+            String text = getCodeMail(code);
+            WebInfo webInfo = (WebInfo) DataCacheUtil.get(CommonConst.WEB_INFO);
+            mailUtil.sendMailMessage(mail, "您有一封来自" + (webInfo == null ? "yuan010" : webInfo.getWebName()) + "的回执！", text);
+        }
+        Integer userId=((User)DataCacheUtil.get(authorization)).getId();
+        DataCacheUtil.put(CommonConst.USER_CODE + userId + "_" + place + "_" + flag, Integer.valueOf(code), 300);
+        return R.success();
+    }
+
+    @Override
+    public R updateSecretInfo(UserUpdateSecretInfoParam userUpdateSecretInfoParam, User user) {
+      String  password = new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(userUpdateSecretInfoParam.getPassword()));
+        Integer flag = userUpdateSecretInfoParam.getFlag();
+        String place = userUpdateSecretInfoParam.getPlace();
+        String code = userUpdateSecretInfoParam.getCode();
+        if ((flag == 1 || flag == 2) && !DigestUtils.md5DigestAsHex(password.getBytes()).equals(user.getPassword())) {
+            return R.fail("密码错误！");
+        }
+        if ((flag == 1 || flag == 2) && !StringUtils.hasText(code)) {
+            return R.fail("请输入验证码！");
+        }
+        //更新邮箱
+        if (flag == 2) {
+            Integer count = lambdaQuery().eq(User::getEmail, place).count();
+            if (count != 0) {
+                return R.fail("邮箱重复！");
+            }
+            Integer codeCache = (Integer) DataCacheUtil.get(CommonConst.USER_CODE + user.getId() + "_" + place + "_" + flag);
+            if (codeCache != null && codeCache.intValue() == Integer.parseInt(code)) {
+
+                DataCacheUtil.remove(CommonConst.USER_CODE + user.getId() + "_" + place + "_" + flag);
+
+                user.setEmail(place);
+            } else {
+                return R.fail("验证码错误！");
+            }
+        }
+        updateById(user);
+        String Token= (String) DataCacheUtil.get(CommonConst.USER_TOKEN+user.getId());
+        DataCacheUtil.put(Token, user, CommonConst.TOKEN_EXPIRE);
+        DataCacheUtil.put(CommonConst.USER_TOKEN + user.getId(), Token, CommonConst.TOKEN_EXPIRE);
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        userVO.setPassword(null);
+        log.info("***UserServiceImpl.updateSecretInfo业务结束，结果:{}",userVO );
+        return R.success(userVO);
+    }
+
+    @Override
+    public R getCodeForForgetPasswordOrRegister(String place, Integer flag) {
+        int i = new Random().nextInt(900000) + 100000;
+        if (flag == 1) {
+            log.info(place + "---" + "手机验证码---" + i);
+        } else if (flag == 2) {
+            log.info(place + "---" + "邮箱验证码---" + i);
+
+            List<String> mail = new ArrayList<>();
+            mail.add(place);
+            String text = getCodeMail(i);
+            WebInfo webInfo = (WebInfo) DataCacheUtil.get(CommonConst.WEB_INFO);
+            mailUtil.sendMailMessage(mail, "您有一封来自" + (webInfo == null ? "寻国记" : webInfo.getWebName()) + "的回执！", text);
+        }
+        DataCacheUtil.put(CommonConst.FORGET_PASSWORD + place + "_" + flag, Integer.valueOf(i), 300);
+        return R.success();
+    }
+
+    @Override
+    public R updateForForgetPassword(ForForgetPasswordParam forForgetPasswordParam) {
+
+      String  password = new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(forForgetPasswordParam.getPassword()));
+        Integer flag = forForgetPasswordParam.getFlag();
+        String code = forForgetPasswordParam.getCode();
+        String place = forForgetPasswordParam.getPlace();
+        Integer codeCache = (Integer) DataCacheUtil.get(CommonConst.FORGET_PASSWORD + place + "_" + flag);
+        if (codeCache == null || codeCache != Integer.parseInt(code)) {
+            return R.fail("验证码错误！");
+        }
+
+        DataCacheUtil.remove(CommonConst.FORGET_PASSWORD + place + "_" + flag);
+
+      if (flag == 2) {
+            User user = lambdaQuery().eq(User::getEmail, place).one();
+            if (user == null) {
+                return R.fail("该邮箱未绑定账号！");
+            }
+
+            if (!user.getUserStatus()) {
+                return R.fail("账号被冻结！");
+            }
+            lambdaUpdate().eq(User::getEmail, place).set(User::getPassword, DigestUtils.md5DigestAsHex(password.getBytes())).update();
+            DataCacheUtil.remove(CommonConst.USER_CACHE + user.getId().toString());
+        }
+        return R.success();
+
+
+
+    }
+
+    /**
+     * 用户注册
+     *
+     * @param user
+     * @return
+     */
+    @Override
+    public R register(UserRegisterParam user) {
+        String regex = "\\d{11}";
+        if (user.getUsername().matches(regex)) {
+            return R.fail("用户名不能为11位数字！");
+        }
+
+        if (user.getUsername().contains("@")) {
+            return R.fail("用户名不能包含@！");
+        }
+
+        if (StringUtils.hasText(user.getEmail())) {
+            Integer codeCache = (Integer) DataCacheUtil.get(CommonConst.FORGET_PASSWORD + user.getEmail() + "_2");
+            if (codeCache == null || codeCache != Integer.parseInt(user.getCode())) {
+                return R.fail("验证码错误！");
+            }
+            DataCacheUtil.remove(CommonConst.FORGET_PASSWORD + user.getEmail() + "_2");
+        } else {
+            return R.fail("请输入邮箱！");
+        }
+
+
+        user.setPassword(new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(user.getPassword())));
+
+        Integer count = lambdaQuery().eq(User::getUsername, user.getUsername()).count();
+        if (count != 0) {
+            return R.fail("用户名重复！");
+        }
+    if (StringUtils.hasText(user.getEmail())) {
+            Integer emailCount = lambdaQuery().eq(User::getEmail, user.getEmail()).count();
+            if (emailCount != 0) {
+                return R.fail("邮箱重复！");
+            }
+        }
+
+        User u = new User();
+        u.setUsername(user.getUsername());
+        u.setEmail(user.getEmail());
+        u.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+//        获取随机头像
+        if (!StringUtils.hasText(u.getAvatar())) {
+            u.setAvatar(GetRequestParamsUtil.getRandomAvatar(null));
+        }
+        save(u);
+
+        User one = lambdaQuery().eq(User::getId, u.getId()).one();
+
+        String userToken = CommonConst.USER_ACCESS_TOKEN + UUID.randomUUID().toString().replaceAll("-", "");
+        DataCacheUtil.put(userToken, one, CommonConst.TOKEN_EXPIRE);
+        DataCacheUtil.put(CommonConst.USER_TOKEN + one.getId(), userToken, CommonConst.TOKEN_EXPIRE);
+
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(one, userVO);
+        userVO.setPassword(null);
+        userVO.setAccessToken(userToken);
+
+
+        return R.success(userVO);
+    }
+
+    @Override
+    public R updateUserInfo(User user, String authorization) {
+        Integer userId=((User)DataCacheUtil.get(authorization)).getId();
+        if (StringUtils.hasText(user.getUsername())) {
+            String regex = "\\d{11}";
+            if (user.getUsername().matches(regex)) {
+                return R.fail("用户名不能为11位数字！");
+            }
+
+            if (user.getUsername().contains("@")) {
+                return R.fail("用户名不能包含@！");
+            }
+            Integer count = lambdaQuery().eq(User::getUsername, user.getUsername()).ne(User::getId,userId).count();
+            if (count != 0) {
+                return R.fail("用户名重复！");
+            }
+        }
+        User u = new User();
+        u.setId(userId);
+        u.setUsername(user.getUsername());
+        u.setAvatar(user.getAvatar());
+        u.setGender(user.getGender());
+        u.setIntroduction(user.getIntroduction());
+        updateById(u);
+        User one = lambdaQuery().eq(User::getId, u.getId()).one();
+        DataCacheUtil.put(authorization, one, CommonConst.TOKEN_EXPIRE);
+        DataCacheUtil.put(CommonConst.USER_TOKEN + one.getId(), authorization, CommonConst.TOKEN_EXPIRE);
+
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(one, userVO);
+        userVO.setPassword(null);
+        return R.success(userVO);
+    }
+
+    @Override
+    public R changeUserStatusOrTypeParam(UserStatusOrTypeParam userStatusOrTypeParam) {
+        User user=new User();
+        user.setId(userStatusOrTypeParam.getUserId());
+        user.setUserStatus(userStatusOrTypeParam.getUserStatus());
+        user.setUserType(userStatusOrTypeParam.getUserType());
+        boolean b = updateById(user);
+        //   该用户退出登录
+        if(!b)
+        {
+            return R.fail("修改失败");
+        }
+        if(userStatusOrTypeParam.getUserStatus()!=null&&!userStatusOrTypeParam.getUserStatus())
+        {     log.info("***UserController.changeUserStatusOrTypeParam业务结束，结果:{}",userStatusOrTypeParam.getUserStatus() );
+
+            //管理员
+            if(DataCacheUtil.get(CommonConst.ADMIN_TOKEN + user.getId()) != null)
+            {
+                String token = (String) DataCacheUtil.get(CommonConst.ADMIN_TOKEN + user.getId());
+                DataCacheUtil.remove(CommonConst.ADMIN_TOKEN + user.getId());
+                DataCacheUtil.remove(token);
+            }//普通用户
+            else if (DataCacheUtil.get(CommonConst.USER_TOKEN + user.getId()) != null)
+            {
+                String token = (String) DataCacheUtil.get(CommonConst.USER_TOKEN + user.getId());
+                DataCacheUtil.remove(CommonConst.USER_TOKEN + user.getId());
+                DataCacheUtil.remove(token);
+            }
+        }
+
+        return R.success();
+    }
+
+    /**
+     * 设置邮件内容
+     * @param code
+     * @return
+     */
+    private String getCodeMail(int code) {
+        WebInfo webInfo = (WebInfo) DataCacheUtil.get(CommonConst.WEB_INFO);
+        String webName = (webInfo == null ? "寻国记" : webInfo.getWebName());
+        return String.format(MailUtil.mailText,
+                webName,
+                "bossName",
+                "bossName",
+                String.format(codeFormat, code),
+                "",
+                webName);
+    }
+
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.yuan.params.SearchResourceParam;
 import com.yuan.pojo.Resource;
 import com.yuan.pojo.WebInfo;
+import com.yuan.utils.R;
 
 /**
  * @author yuanyuan
@@ -13,5 +14,7 @@ import com.yuan.pojo.WebInfo;
  * @Description null
  */
 public interface ResourceService  extends IService<Resource> {
-    IPage<Resource> listResource(SearchResourceParam searchResourceParam);
+   R listResource(SearchResourceParam searchResourceParam);
+
+    R saveResource(Resource resource, String authorization);
 }

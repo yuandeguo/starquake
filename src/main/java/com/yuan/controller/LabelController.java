@@ -25,30 +25,22 @@ public class LabelController {
     @GetMapping("/admin/deleteLabel")
     public R deleteLabel(@RequestParam("id") Integer id)
     {
-        boolean b = labelService.removeById(id);
-        if(!b) {
-            return R.fail("标签删除失败");
-        }
-        return R.success();
+
+       return labelService.deleteLabel(id);
+
     }
 
     @PostMapping("/admin/saveLabel")
     public R saveLabel(@RequestBody Label label)
     {
-        boolean b = labelService.save(label);
-        if(!b) {
-            return R.fail("标签保存失败");
-        }
-        return R.success();
+        return labelService.saveLabel(label);
+
     }
     @PostMapping("/admin/updateLabel")
     public R updateLabel(@RequestBody Label label)
     {
-        boolean b = labelService.updateById(label);
-        if(!b) {
-            return R.fail("标签修改失败");
-        }
-        return R.success();
+      return  labelService.updateLabel(label);
+
     }
 
 

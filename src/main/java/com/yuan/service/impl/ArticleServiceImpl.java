@@ -5,25 +5,22 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuan.mapper.ArticleMapper;
-import com.yuan.mapper.CommentMapper;
 import com.yuan.myEnum.CommentTypeEnum;
 import com.yuan.myEnum.CommonConst;
+import com.yuan.params.ArticleUpdateStatusParams;
 import com.yuan.params.SearchArticleParam;
-import com.yuan.pojo.Article;
-import com.yuan.pojo.Comment;
-import com.yuan.pojo.Sort;
-import com.yuan.pojo.User;
+import com.yuan.pojo.*;
 import com.yuan.service.*;
 import com.yuan.utils.DataCacheUtil;
+import com.yuan.utils.R;
 import com.yuan.vo.ArticleVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,7 +43,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Resource
     private CommentService commentService;
 
-
+    @Resource
+    private WeiYanService weiYanService;
 
     @Override
     public IPage<ArticleVo> listArticle(SearchArticleParam searchArticleParam, String  authorization) {
@@ -95,7 +93,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      * @return
      */
     @Override
-    public IPage<ArticleVo> listArticleByFront(SearchArticleParam searchArticleParam) {
+    public R listArticleByFront(SearchArticleParam searchArticleParam) {
         QueryWrapper<Article> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("view_status",1);
         queryWrapper.orderByDesc("create_time");
@@ -121,10 +119,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
         articleIPage.setRecords(collect);
         articleIPage.setTotal(page.getTotal());
-        log.info("***ArticleServiceImpl.listArticle业务结束，结果:{}", articleIPage.getRecords());
-
-        return articleIPage;
-
+        return R.success(articleIPage);
 
     }
 
@@ -133,6 +128,94 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Article article = baseMapper.selectById(id);
         ArticleVo articleVO = buildArticleVO(article);
         return articleVO;
+
+    }
+
+    @Override
+    public R saveArticle(Article article, String authorization) {
+                if(!article.getViewStatus())
+        {
+            if(!StringUtils.hasText(article.getPassword()))
+            {
+                return R.fail("文章参数错误");
+            }
+        }
+        Integer userId=  ((User)DataCacheUtil.get(authorization)).getId();
+        article.setUserId(userId);
+        article.setCreateTime(LocalDateTime.now());
+        int insert = baseMapper.insert(article);
+        if(insert!=1)
+        {
+            return R.fail("文章保存失败");
+        }
+        WeiYan weiYan = new WeiYan();
+        weiYan.setUserId(userId);
+        weiYan.setContent("发表新文章: <br>"+"   "+article.getArticleTitle());
+        weiYan.setIsPublic(Boolean.TRUE);
+        weiYan.setSource(article.getId());
+        weiYan.setType(CommonConst.WEIYAN_TYPE_FRIEND);
+        weiYan.setCreateTime(LocalDateTime.now());
+        weiYanService.save(weiYan);
+
+
+        return R.success();
+
+    }
+
+    /**
+     * 更新文章状态
+     * @param articleUpdateStatusParams
+     * @return
+     */
+    @Override
+    public R updateArticleStatus(ArticleUpdateStatusParams articleUpdateStatusParams) {
+        Article article=new Article();
+        article.setId(articleUpdateStatusParams.getArticleId());
+        article.setViewStatus(articleUpdateStatusParams.getViewStatus());
+        article.setCommentStatus(articleUpdateStatusParams.getCommentStatus());
+        article.setRecommendStatus(articleUpdateStatusParams.getRecommendStatus());
+        boolean b = updateById(article);
+        if(!b) {
+            return R.fail("更新失败");
+        }
+return R.success();
+    }
+
+    @Override
+    public R deleteArticle(Integer id) {
+        boolean b = removeById(id);
+        if(!b) {
+            return R.fail("更新失败");
+        }
+        return R.success();
+    }
+
+    @Override
+    public R getArticleById(Integer id) {
+        Article byId = getById(id);
+        if(byId==null)
+        {
+            return R.fail("错误，文章不存在");
+        }
+        return R.success(byId);
+    }
+
+    @Override
+    public R updateArticle(Article article) {
+
+
+        boolean b=updateById(article);
+        if(!b)
+        {
+            return R.fail("文章更新失败");
+        }
+        return R.success();
+    }
+
+    @Override
+    public R getArticleByIdFront(Integer id) {
+        ArticleVo byId = getByIdToFront(id);
+        return R.success(byId);
 
     }
 

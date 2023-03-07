@@ -3,6 +3,7 @@ package com.yuan.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yuan.pojo.Sort;
 import com.yuan.pojo.User;
+import com.yuan.utils.R;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,13 @@ import java.util.Map;
  */
 public interface SortService extends IService<Sort> {
 
-    List<Sort> getSortInfo();
+   R getSortInfo();
 
-    Map<String, List> listSortAndLabel();
+   R listSortAndLabel();
+
+    R deleteSort(Integer id);
+
+    R saveSort(Sort sort);
+
+    R updateSort(Sort sort);
 }

@@ -27,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
     @Resource
     private UserService userService;
     @Override
-    public IPage<Comment> searchCommentList(SearchCommentParam searchCommentParam, String authorization) {
+    public R searchCommentList(SearchCommentParam searchCommentParam, String authorization) {
         QueryWrapper<Comment> queryWrapper=new QueryWrapper<>();
         User user=(User)DataCacheUtil.get(authorization);
         //如果不是boss，只能查看自己文章的评论
@@ -58,7 +59,7 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
             log.info("***CommentServiceImpl.searchCommentList业务结束，结果:{}",integers );
             IPage<Comment> page=new Page<>();
             if(integers.isEmpty())
-                return  page;
+                return R.success( page);
             queryWrapper.in("source",integers);
             queryWrapper.eq("type", CommentTypeEnum.COMMENT_TYPE_ARTICLE.getCode());
         }
@@ -73,7 +74,7 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
         IPage<Comment> page=new Page<>(searchCommentParam.getCurrent(),searchCommentParam.getSize());
         page= baseMapper.selectPage(page, queryWrapper);
         log.info("***CommentServiceImpl.searchCommentList业务结束，结果:{}", page.getRecords());
-        return page;
+         return   R.success( page);
     }
 
     @Override
@@ -163,6 +164,31 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
             return R.success(iPageCommentVo);
         }
 
+    }
+
+    @Override
+    public R deleteComment(Integer id) {
+        boolean b = removeById(id);
+        if(!b) {
+            return R.fail("评论删除失败");
+        }
+        return R.success();
+    }
+
+    @Override
+    public R saveComment(Comment comment, String authorization) {
+        User user=   (User)DataCacheUtil.get(authorization);
+        if(user==null)
+        {
+            return R.fail("评论保存失败,请重新登录");
+        }
+        comment.setUserId(user.getId());
+        comment.setCreateTime(LocalDateTime.now());
+        boolean save = save(comment);
+        if(!save) {
+            return R.fail("评论保存失败");
+        }
+        return R.success();
     }
 
     private CommentVo buildCommentVO(Comment c) {

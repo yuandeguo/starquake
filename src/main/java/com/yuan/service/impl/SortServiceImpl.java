@@ -11,6 +11,7 @@ import com.yuan.service.ArticleService;
 import com.yuan.service.LabelService;
 import com.yuan.service.ResourceService;
 import com.yuan.service.SortService;
+import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class SortServiceImpl extends ServiceImpl<SortMapper, Sort> implements So
     @Resource
     private ArticleService articleService;
     @Override
-    public List<Sort> getSortInfo() {
+    public R getSortInfo() {
         List<Sort> list = baseMapper.selectList(null);
         for(Sort item:list)
         {
@@ -53,17 +54,44 @@ public class SortServiceImpl extends ServiceImpl<SortMapper, Sort> implements So
             SortArticleCount.eq("sort_id",item.getId());
             item.setCountOfSort( articleService.count(SortArticleCount));
         }
-        log.info("***SortController.getSortInfo业务结束，结果:{}",list );
-        return list;
+        return R.success(list);
     }
 
     @Override
-    public Map<String, List> listSortAndLabel() {
+    public R listSortAndLabel() {
         List<Sort> sortList=baseMapper.selectList(null);
         List<Label> labelList=labelService.list();
         Map<String, List> map = new HashMap<>();
         map.put("sorts",sortList);
         map.put("labels",labelList);
-        return map;
+        return R.success(map)  ;
+    }
+
+    @Override
+    public R deleteSort(Integer id) {
+        boolean b = removeById(id);
+        if(!b) {
+            return R.fail("分类删除失败");
+        }
+
+        return R.success();
+    }
+
+    @Override
+    public R saveSort(Sort sort) {
+        boolean b = save(sort);
+        if(!b) {
+            return R.fail("分类保存失败");
+        }
+        return R.success();
+    }
+
+    @Override
+    public R updateSort(Sort sort) {
+        boolean b = updateById(sort);
+        if(!b) {
+            return R.fail("分类修改失败");
+        }
+        return R.success();
     }
 }

@@ -3,11 +3,14 @@ package com.yuan.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yuan.annotations.LoginCheck;
+import com.yuan.myEnum.CommonConst;
 import com.yuan.params.ArticleUpdateStatusParams;
 import com.yuan.params.SearchArticleParam;
 import com.yuan.pojo.Article;
 import com.yuan.pojo.User;
+import com.yuan.pojo.WeiYan;
 import com.yuan.service.ArticleService;
+import com.yuan.service.WeiYanService;
 import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import com.yuan.vo.ArticleVo;
@@ -35,6 +38,7 @@ public class ArticleController {
     @Resource
     private ArticleService articleService;
 
+
     /**
      * 查询文章列表
      */
@@ -49,17 +53,7 @@ public class ArticleController {
      */
     @PostMapping("/admin/updateArticleStatus")
     public R updateArticleStatus(@RequestBody ArticleUpdateStatusParams articleUpdateStatusParams) {
-        log.info("***ArticleController.listBossArticle业务结束，结果:{}",articleUpdateStatusParams );
-        Article article=new Article();
-        article.setId(articleUpdateStatusParams.getArticleId());
-        article.setViewStatus(articleUpdateStatusParams.getViewStatus());
-        article.setCommentStatus(articleUpdateStatusParams.getCommentStatus());
-        article.setRecommendStatus(articleUpdateStatusParams.getRecommendStatus());
-        boolean b = articleService.updateById(article);
-        if(!b) {
-            return R.fail("更新失败");
-        }
-         return R.success();
+         return articleService.updateArticleStatus(articleUpdateStatusParams);
     }
 
     /**
@@ -70,11 +64,9 @@ public class ArticleController {
     @GetMapping("/admin/deleteArticle")
     public R deleteArticle(@RequestParam("id") Integer id)
     {
-        boolean b = articleService.removeById(id);
-        if(!b) {
-            return R.fail("更新失败");
-        }
-        return R.success();
+
+
+        return articleService.deleteArticle(id);
     }
 
     /**
@@ -84,28 +76,21 @@ public class ArticleController {
      */
     @GetMapping("/admin/getArticleById")
     public R getArticleById(@RequestParam("id") Integer id) {
-        Article byId = articleService.getById(id);
-        if(byId==null)
-        {
-            return R.fail("错误，文章不存在");
-        }
-        return R.success(byId);
+return articleService.getArticleById(id);
+
+
     }
     /**
      * 更新文章
      */
     @PostMapping("/admin/updateArticle")
     public R updateArticle(@Validated @RequestBody Article article, BindingResult result,@RequestHeader("Authorization") String authorization) {
-    if(result.hasErrors())
-        return R.fail("文章参数错误");
-    log.info("***ArticleController.updateArticle业务结束，结果:{}", article);
-    article.setUpdateBy(((User)DataCacheUtil.get(authorization)).getUsername());
-    boolean b = articleService.updateById(article);
-    if(!b)
-    {
-        return R.fail("文章更新失败");
-    }
-    return R.success();
+        if(result.hasErrors())
+            return R.fail("文章参数错误");
+        article.setUpdateBy(((User)DataCacheUtil.get(authorization)).getUsername());
+  return articleService.updateArticle(article);
+
+
 }
 
     /**
@@ -120,29 +105,16 @@ public class ArticleController {
         if(result.hasErrors()) {
             return R.fail("文章参数错误");
         }
-        if(!article.getViewStatus())
-        {
-            if(!StringUtils.hasText(article.getPassword()))
-            {
-                return R.fail("文章参数错误");
-            }
-        }
-        article.setUserId(((User)DataCacheUtil.get(authorization)).getId());
-        article.setCreateTime(LocalDateTime.now());
-        boolean b = articleService.save(article);
-        if(!b)
-        {
-            return R.fail("文章保存失败");
-        }
-        return R.success();
+
+        return articleService.saveArticle(article,authorization);
     }
     /**
      * 查询文章List
      */
     @PostMapping("/listArticle")
     public R listArticle(@RequestBody SearchArticleParam searchArticleParam) {
-        IPage<ArticleVo> list= articleService.listArticleByFront(searchArticleParam);
-        return R.success(list);
+      return  articleService.listArticleByFront(searchArticleParam);
+
     }
 
     /**
@@ -152,7 +124,7 @@ public class ArticleController {
      */
     @GetMapping("/getArticleById")
     public R getArticleByIdFront(@RequestParam("id") Integer id) {
-        ArticleVo byId = articleService.getByIdToFront(id);
-        return R.success(byId);
+
+        return articleService.getArticleByIdFront(id);
     }
 }
