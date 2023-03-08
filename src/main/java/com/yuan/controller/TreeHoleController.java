@@ -2,7 +2,7 @@ package com.yuan.controller;
 import com.yuan.params.PageParam;
 import com.yuan.pojo.TreeHole;
 import com.yuan.service.TreeHoleService;
-import com.yuan.utils.GetRequestParamsUtil;
+import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +56,8 @@ public class TreeHoleController {
         }
         treeHole.setCreateTime(LocalDateTime.now());
         if (!StringUtils.hasText(treeHole.getAvatar())) {
-            treeHole.setAvatar(GetRequestParamsUtil.getRandomAvatar(null));
+            //随机头像
+            treeHole.setAvatar(DataCacheUtil.getRandomAvatar());
         }
         boolean save = treeHoleService.save(treeHole);
         if(!save) {

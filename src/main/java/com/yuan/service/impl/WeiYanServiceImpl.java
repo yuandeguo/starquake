@@ -9,12 +9,13 @@ import com.yuan.myEnum.CommonConst;
 import com.yuan.params.PageParam;
 import com.yuan.pojo.User;
 import com.yuan.pojo.WeiYan;
+import com.yuan.service.RedisService;
 import com.yuan.service.WeiYanService;
-import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 
 
@@ -26,7 +27,8 @@ import java.time.LocalDateTime;
  */
 @Service
 public class WeiYanServiceImpl extends ServiceImpl<WeiYanMapper, WeiYan> implements WeiYanService {
-
+    @Resource
+    private RedisService redisService;
     @Override
     public R listWeiYan(PageParam pageParam) {
         IPage<WeiYan> page=new Page<>(pageParam.getCurrent(),pageParam.getSize());
@@ -39,7 +41,7 @@ public class WeiYanServiceImpl extends ServiceImpl<WeiYanMapper, WeiYan> impleme
 
     @Override
     public R saveWeiYan(WeiYan weiYanVO, String authorization) {
-        User user= (User) DataCacheUtil.get(authorization);
+        User user=  redisService.get(authorization, User.class);
         assert user != null;
         if(user.getUserType()!=0)
             return R.fail("错误，不是管理员");
@@ -60,7 +62,7 @@ public class WeiYanServiceImpl extends ServiceImpl<WeiYanMapper, WeiYan> impleme
     @Override
     public R deleteWeiYan(Integer id, String authorization) {
 
-        User user= (User) DataCacheUtil.get(authorization);
+        User user= redisService.get(authorization,User.class);
 
         assert user != null;
         if(user.getUserType()!=0)

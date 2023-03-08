@@ -1,19 +1,18 @@
 package com.yuan.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.yuan.annotations.LoginCheck;
 import com.yuan.myEnum.CommonConst;
 import com.yuan.params.PageParam;
 import com.yuan.params.SearchResourcePathParam;
 import com.yuan.pojo.ResourcePath;
 import com.yuan.pojo.User;
+import com.yuan.service.RedisService;
 import com.yuan.service.ResourcePathService;
-import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 
 /**
@@ -27,7 +26,8 @@ import java.time.LocalDateTime;
 public class ResourcePathController {
     @Autowired
     private ResourcePathService resourcePathService;
-
+    @Resource
+    private RedisService redisService;
     @PostMapping("/admin/listResourcePath")
     public R listResourcePath(@RequestBody SearchResourcePathParam resourcePathParam){
         return  resourcePathService.listResourcePath(resourcePathParam);
@@ -93,7 +93,7 @@ public class ResourcePathController {
 
     @PostMapping("/saveFriend")
     public R saveFriend(@RequestBody ResourcePath resourcePath, @RequestHeader("Authorization") String authorization) {
-      User user= (User) DataCacheUtil.get(authorization);
+      User user= redisService.get(authorization, User.class);
       if(!StringUtils.hasText(user.getEmail()))
           return R.fail("请绑定邮箱");
 

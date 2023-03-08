@@ -1,7 +1,5 @@
 package com.yuan.controller;
 
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.yuan.annotations.LoginCheck;
 import com.yuan.myEnum.CommonConst;
 import com.yuan.pojo.WebInfo;
 import com.yuan.service.WebInfoService;
@@ -39,7 +37,12 @@ public class WebInfoController {
      */
     @GetMapping("/admin/getWebInfo")
     public R getWebInfo() {
-       return  webInfoService.getWebInfo();
+        Object o = DataCacheUtil.get(CommonConst.WEB_INFO);
+        if(o!=null)
+            return R.success(o);
+
+
+        return  webInfoService.getWebInfo();
 
     }
 

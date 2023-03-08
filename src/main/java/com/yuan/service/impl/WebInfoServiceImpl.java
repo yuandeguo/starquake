@@ -4,11 +4,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuan.mapper.WebInfoMapper;
 import com.yuan.myEnum.CommonConst;
 import com.yuan.pojo.WebInfo;
+import com.yuan.service.RedisService;
 import com.yuan.service.WebInfoService;
 import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * @author yuanyuan
@@ -19,7 +22,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class WebInfoServiceImpl extends ServiceImpl<WebInfoMapper, WebInfo> implements WebInfoService {
-
+    @Resource
+    private RedisService redisService;
     @Override
     public R getWebInfo() {
 

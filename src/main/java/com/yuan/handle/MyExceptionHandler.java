@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.yuan.exception.MyLoginException;
 import com.yuan.exception.MyRuntimeException;
 import com.yuan.myEnum.CodeMsg;
-import com.yuan.utils.GetRequestParamsUtil;
+import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.FieldError;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import redis.clients.jedis.exceptions.JedisExhaustedPoolException;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public class MyExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public R handlerException(Exception ex) {
-        log.error("请求URL-----------------" + GetRequestParamsUtil.getRequest().getRequestURL());
+        log.error("请求URL-----------------" + DataCacheUtil.getRequest().getRequestURL());
         log.error("出错啦-----------------" + ex);
         if (ex instanceof MyRuntimeException) {
             MyRuntimeException e = (MyRuntimeException) ex;
@@ -49,7 +50,9 @@ public class MyExceptionHandler {
         if (ex instanceof MissingServletRequestParameterException) {
             return R.fail(CodeMsg.PARAMETER_ERROR);
         }
-
+        if (ex instanceof JedisExhaustedPoolException) {
+            return R.fail("服务器繁忙，请稍后再试");
+        }
         return R.fail(CodeMsg.FAIL);
     }
 }

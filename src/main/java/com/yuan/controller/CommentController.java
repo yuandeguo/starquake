@@ -1,22 +1,12 @@
 package com.yuan.controller;
-
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.yuan.annotations.LoginCheck;
-import com.yuan.myEnum.CommonConst;
 import com.yuan.params.SearchCommentParam;
 import com.yuan.pojo.Comment;
-import com.yuan.pojo.User;
 import com.yuan.service.CommentService;
-import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
-import com.yuan.vo.CommentVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * @author yuanyuan

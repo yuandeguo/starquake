@@ -11,7 +11,6 @@ import com.yuan.params.ArticleUpdateStatusParams;
 import com.yuan.params.SearchArticleParam;
 import com.yuan.pojo.*;
 import com.yuan.service.*;
-import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import com.yuan.vo.ArticleVo;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +22,7 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -46,8 +46,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Resource
     private WeiYanService weiYanService;
 
+    @Resource
+    private RedisService redisService;
+
+
+
+    /**
+     * 后台管理查找文章
+     * @param searchArticleParam
+     * @param authorization
+     * @return
+     */
     @Override
-    public IPage<ArticleVo> listArticle(SearchArticleParam searchArticleParam, String  authorization) {
+    public R listArticle(SearchArticleParam searchArticleParam, String  authorization) {
 
         QueryWrapper<Article> queryWrapper=new QueryWrapper<>();
         if (StringUtils.hasText(searchArticleParam.getSearchKey())) {
@@ -64,10 +75,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
         if(!searchArticleParam.getIsBossSearch())//不是boss只能查看直接的文章
         {
-            queryWrapper.eq("user_id", ((User)DataCacheUtil.get(authorization)).getId());
+            queryWrapper.eq("user_id", (redisService.get(authorization, User.class)).getId());
         }
-
-
 
         IPage<Article> page=new Page<>(searchArticleParam.getCurrent(),searchArticleParam.getSize());
         page= baseMapper.selectPage(page, queryWrapper);
@@ -84,7 +93,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         articleIPage.setTotal(page.getTotal());
         log.info("***ArticleServiceImpl.listArticle业务结束，结果:{}", articleIPage.getRecords());
 
-        return articleIPage;
+        return R.success(articleIPage);
     }
 
     /**
@@ -123,14 +132,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     }
 
-    @Override
-    public ArticleVo getByIdToFront(Integer id) {
-        Article article = baseMapper.selectById(id);
-        ArticleVo articleVO = buildArticleVO(article);
-        return articleVO;
 
-    }
 
+    /**
+     * 保存文章信息
+     * @param article
+     * @param authorization
+     * @return
+     */
     @Override
     public R saveArticle(Article article, String authorization) {
                 if(!article.getViewStatus())
@@ -140,7 +149,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 return R.fail("文章参数错误");
             }
         }
-        Integer userId=  ((User)DataCacheUtil.get(authorization)).getId();
+        Integer userId=  (redisService.get(authorization, User.class)).getId();
         article.setUserId(userId);
         article.setCreateTime(LocalDateTime.now());
         int insert = baseMapper.insert(article);
@@ -181,6 +190,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 return R.success();
     }
 
+    /**
+     * 删除文章
+     * @param id
+     * @return
+     */
     @Override
     public R deleteArticle(Integer id) {
         boolean b = removeById(id);
@@ -189,6 +203,12 @@ return R.success();
         }
         return R.success();
     }
+
+    /**
+     * 后台管理 根据id查找文章
+     * @param id
+     * @return
+     */
 
     @Override
     public R getArticleById(Integer id) {
@@ -200,10 +220,15 @@ return R.success();
         return R.success(byId);
     }
 
+    /**
+     * 更新文章
+     * @param article
+     * @param authorization
+     * @return
+     */
     @Override
-    public R updateArticle(Article article) {
-
-
+    public R updateArticle(Article article,String authorization) {
+        article.setUpdateBy((redisService.get(authorization,User.class)).getUsername());
         boolean b=updateById(article);
         if(!b)
         {
@@ -212,10 +237,18 @@ return R.success();
         return R.success();
     }
 
+    /**
+     * 前台根据id查找文章
+     * @param id
+     * @return
+     */
+
     @Override
     public R getArticleByIdFront(Integer id) {
-        ArticleVo byId = getByIdToFront(id);
-        return R.success(byId);
+        Article article = baseMapper.selectById(id);
+        ArticleVo articleVO = buildArticleVO(article);
+        log.info("***ArticleServiceImpl.getArticleByIdFront业务结束，结果:{}", articleVO);
+        return R.success(articleVO);
 
     }
 
@@ -231,6 +264,22 @@ return R.success();
            // 没有封面就随机封面，还没做好
             articleVO.setArticleCover("http://rqldcqw23.hn-bkt.clouddn.com/articleCover/Sara11677397871718631.jpg");
         }
+        Map<String, String> articleLikeAndHeat= redisService.getArticleLikeAndHeat(article.getId());
+
+        if(articleLikeAndHeat!=null&&!articleLikeAndHeat.isEmpty()) {
+            Integer num = 0;
+            log.info("***ArticleController.getArticleByIdFront业务结束，结果:{}", articleLikeAndHeat);
+            if (articleLikeAndHeat.get("like") != null) ;
+            num = Integer.parseInt(articleLikeAndHeat.get("like"));
+            articleVO.setLikeCount(num + articleVO.getLikeCount());
+            if (articleLikeAndHeat.get("heat") != null) ;
+            num = Integer.parseInt(articleLikeAndHeat.get("heat"));
+            articleVO.setViewCount(num + articleVO.getViewCount());
+
+        }
+
+
+
         articleVO.setSort(sortService.getById(articleVO.getSortId()));
         articleVO.setLabel(labelService.getById(articleVO.getLabelId()));
         articleVO.setUsername(userService.getById(articleVO.getUserId()).getUsername());

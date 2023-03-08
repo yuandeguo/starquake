@@ -3,12 +3,14 @@ package com.yuan.interceptor;
 import com.alibaba.fastjson.JSON;
 import com.yuan.myEnum.CodeMsg;
 import com.yuan.pojo.User;
+import com.yuan.service.RedisService;
 import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,7 +22,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Slf4j
 public class AuthorityVerifyInterceptor implements HandlerInterceptor {
+    public AuthorityVerifyInterceptor(RedisService redisService) {
+        this.redisService = redisService;
+    }
 
+    private RedisService redisService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -30,7 +36,7 @@ public class AuthorityVerifyInterceptor implements HandlerInterceptor {
          response.getWriter().write(JSON.toJSONString(R.fail(CodeMsg.NOT_LOGIN.getCode(), CodeMsg.NOT_LOGIN.getMsg())));
          return false;
      }
-    User user= (User) DataCacheUtil.get(auth);
+    User user= redisService.get(auth, User.class);
         log.info("***AuthorityVerifyInterceptor.preHandle业务结束，结果:{}",user );
      if(user==null)
      {

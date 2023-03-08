@@ -9,8 +9,8 @@ import com.yuan.mapper.ResourceMapper;
 import com.yuan.params.SearchResourceParam;
 import com.yuan.pojo.Resource;
 import com.yuan.pojo.User;
+import com.yuan.service.RedisService;
 import com.yuan.service.ResourceService;
-import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,8 @@ import org.springframework.util.StringUtils;
 @Service
 @Slf4j
 public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
-
+    @javax.annotation.Resource
+    private RedisService redisService;
     @Override
     public R listResource(SearchResourceParam searchResourceParam) {
         QueryWrapper<Resource> queryWrapper=new QueryWrapper<>();
@@ -50,7 +51,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         re.setType(resource.getType());
         re.setSize(resource.getSize());
         re.setMimeType(resource.getMimeType());
-        re.setUserId(((User) DataCacheUtil.get(authorization)).getId());
+        re.setUserId(( redisService.get(authorization,User.class)).getId());
         re.setCreateTime( LocalDateTimeUtil.now());
         save(re);
         log.info("***ResourceController.saveResource业务结束，结果:{}",re );

@@ -113,7 +113,7 @@ public class Article implements Serializable {
     /**
      * 最终修改人
      */
-    @TableField(value = "update_by", fill = FieldFill.UPDATE)
+    @TableField(value = "update_by")
     private String updateBy;
 
     /**

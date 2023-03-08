@@ -13,8 +13,8 @@ public enum CommentTypeEnum {
 
 
     COMMENT_TYPE_ARTICLE("article", "文章评论"),
-    COMMENT_TYPE_MESSAGE("message", "树洞留言"),
-    COMMENT_TYPE_LOVE("love", "表白墙留言");
+    COMMENT_TYPE_MESSAGE("message", "树洞留言");
+
 
     private final String code;
 

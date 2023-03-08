@@ -1,7 +1,18 @@
 package com.yuan.utils;
 
+import com.alibaba.fastjson.JSON;
+import com.yuan.myEnum.CommonConst;
+import com.yuan.pojo.WebInfo;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.*;
 
 /**
@@ -134,4 +145,54 @@ public class DataCacheUtil {
             return future;
         }
     }
+
+    /**
+     * 随机头像
+     * @return
+     */
+    public static String getRandomAvatar() {
+        WebInfo webInfo = (WebInfo) get(CommonConst.WEB_INFO);
+        if (webInfo != null) {
+            String randomAvatar = webInfo.getRandomAvatar();
+            List<String> randomAvatars = JSON.parseArray(randomAvatar, String.class);
+            if (!CollectionUtils.isEmpty(randomAvatars)) {
+               int count=randomAvatars.size();
+                Random r = new Random();
+                int rin = r.nextInt(count); // 生成[0,10]区间的整数
+                System.out.println(count);
+                System.out.println(rin);
+               return randomAvatars.get(rin);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 随机背景
+     * @param
+     * @return
+     */
+    public static String getRandomCover() {
+        WebInfo webInfo = (WebInfo) get(CommonConst.WEB_INFO);
+        if (webInfo != null) {
+            String randomCover = webInfo.getRandomCover();
+            List<String> randomCovers = JSON.parseArray(randomCover, String.class);
+            if (!CollectionUtils.isEmpty(randomCovers)) {
+
+                int count=randomCovers.size();
+                Random r = new Random();
+                int rin = r.nextInt(count); // 生成[0,10]区间的整数
+                return randomCovers.get(rin);
+
+
+            }
+        }
+        return null;
+    }
+    public static HttpServletRequest getRequest() {
+        return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+    }
+
+
+
 }

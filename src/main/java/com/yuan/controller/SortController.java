@@ -1,13 +1,11 @@
 package com.yuan.controller;
 import com.yuan.pojo.Sort;
+import com.yuan.service.RedisService;
 import com.yuan.service.SortService;
-import com.yuan.utils.DataCacheUtil2;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author yuanyuan
@@ -68,16 +66,29 @@ public R getSortInfo(){
 
 
     @Resource
-    private DataCacheUtil2 redisService;
+    private RedisService redisService;
 
     @PostMapping("/redis")
-    public R updateSort()
-    {   redisService.SetString("ceshi","123");
-
-        String last= redisService.getString("ceshi");
-return R.success(last);
+    public R updateSort0(@RequestParam("id")Integer id)
+    {   redisService.articleLikeUp(id);
+        redisService.articleHeatUp(id);
+        return R.success();
     }
+    @PostMapping("/redis1")
+    public R updateSort1(@RequestParam("id")Integer id)
+    {
+        System.out.println(redisService.getArticleLikeAndHeat(id));
+        return R.success();
+    }
+    @PostMapping("/redis/2")
+    public R uer(@RequestParam("id")Integer id)
+    {
+        Sort one = sortService.getById(id);
+        System.out.println(one);
+        redisService.set("test",one,180);
 
-
+        System.out.println(    redisService.get("test",one.getClass()));
+        return R.success();
+    }
 
 }

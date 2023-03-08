@@ -10,13 +10,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuan.mapper.ResourcePathMapper;
 import com.yuan.params.PageParam;
 import com.yuan.params.SearchResourcePathParam;
-import com.yuan.pojo.Resource;
 import com.yuan.pojo.ResourcePath;
+import com.yuan.service.RedisService;
 import com.yuan.service.ResourcePathService;
+import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,8 @@ import java.util.List;
  */
 @Service
 public class ResourcePathServiceImpl extends ServiceImpl<ResourcePathMapper, ResourcePath> implements ResourcePathService {
-
+    @Resource
+    private RedisService redisService;
     @Override
     public R listResourcePath(SearchResourcePathParam resourcePathParam) {
         QueryWrapper<ResourcePath> queryWrapper=new QueryWrapper<>();
@@ -53,6 +56,16 @@ public class ResourcePathServiceImpl extends ServiceImpl<ResourcePathMapper, Res
         queryWrapper.eq("type","friendUrl");
         queryWrapper.eq("status", Boolean.TRUE);
         IPage<ResourcePath> page=new Page<>(pageParam.getCurrent(),pageParam.getSize());
+        List<ResourcePath> records = page.getRecords();
+
+        for (ResourcePath item:records)
+        {
+            if(!StringUtils.hasText(item.getCover()))
+            {
+                item.setCover(DataCacheUtil.getRandomCover());
+            }
+        }
+
         page= baseMapper.selectPage(page, queryWrapper);
         return R.success(page);
     }

@@ -1,13 +1,14 @@
 package com.yuan.controller;
 
-import com.yuan.annotations.LoginCheck;
 import com.yuan.exception.MyRuntimeException;
 import com.yuan.pojo.User;
-import com.yuan.utils.DataCacheUtil;
+import com.yuan.service.RedisService;
 import com.yuan.utils.QiniuUtil;
 import com.yuan.utils.R;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 /**
  * @author yuanyuan
@@ -18,14 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/qiniu")
 public class QiniuController {
-
+    @Resource
+    private RedisService redisService;
     /**
      * 获取覆盖凭证
      */
     @GetMapping("/getUpToken")
-    @LoginCheck
     public R<String> getUpToken(@RequestParam(value = "key", required = false) String key, @RequestHeader("Authorization") String authorization) {
-        User user = (User) DataCacheUtil.get(authorization);
+        User user = redisService.get(authorization, User.class);
         if (user==null) {
             throw new MyRuntimeException("请先登录！");
         }

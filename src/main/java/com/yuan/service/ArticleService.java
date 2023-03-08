@@ -17,11 +17,11 @@ import java.util.List;
  * @Description null
  */
 public interface ArticleService extends IService<Article> {
-    IPage<ArticleVo> listArticle(SearchArticleParam searchArticleParam, String authorization);
+    R listArticle(SearchArticleParam searchArticleParam, String authorization);
 
     R listArticleByFront(SearchArticleParam searchArticleParam);
 
-    ArticleVo getByIdToFront(Integer id);
+
 
     R saveArticle(Article article, String authorization);
 
@@ -31,7 +31,7 @@ public interface ArticleService extends IService<Article> {
 
     R getArticleById(Integer id);
 
-    R updateArticle(Article article);
+    R updateArticle(Article article,String authorization);
 
     R getArticleByIdFront(Integer id);
 }

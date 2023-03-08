@@ -16,12 +16,15 @@ import com.yuan.pojo.ResourcePath;
 import com.yuan.pojo.User;
 import com.yuan.service.ArticleService;
 import com.yuan.service.CommentService;
+import com.yuan.service.RedisService;
 import com.yuan.service.UserService;
 import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import com.yuan.vo.CommentVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -45,10 +48,13 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
     ArticleService articleService;
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedisService redisService;
     @Override
     public R searchCommentList(SearchCommentParam searchCommentParam, String authorization) {
         QueryWrapper<Comment> queryWrapper=new QueryWrapper<>();
-        User user=(User)DataCacheUtil.get(authorization);
+        User user=(User)redisService.get(authorization,User.class);
         //如果不是boss，只能查看自己文章的评论
         if(user.getUserType()!=0)
         {
@@ -177,7 +183,7 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
 
     @Override
     public R saveComment(Comment comment, String authorization) {
-        User user=   (User)DataCacheUtil.get(authorization);
+        User user=   (User)redisService.get(authorization,User.class);
         if(user==null)
         {
             return R.fail("评论保存失败,请重新登录");

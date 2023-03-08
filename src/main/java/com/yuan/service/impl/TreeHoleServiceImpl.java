@@ -2,25 +2,21 @@ package com.yuan.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuan.mapper.TreeHoleMapper;
-import com.yuan.mapper.UserMapper;
 import com.yuan.myEnum.CommonConst;
 import com.yuan.params.PageParam;
 import com.yuan.pojo.TreeHole;
-import com.yuan.pojo.User;
+import com.yuan.service.RedisService;
 import com.yuan.service.TreeHoleService;
-import com.yuan.service.UserService;
 import com.yuan.utils.DataCacheUtil;
-import com.yuan.utils.GetRequestParamsUtil;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Random;
 
@@ -33,6 +29,9 @@ import java.util.Random;
 @Slf4j
 @Service
 public class TreeHoleServiceImpl extends ServiceImpl<TreeHoleMapper, TreeHole> implements TreeHoleService {
+    @Resource
+    private RedisService redisService;
+
     @Override
     public R listTreeHole() {
         List<TreeHole> treeHoles;
@@ -50,7 +49,7 @@ public class TreeHoleServiceImpl extends ServiceImpl<TreeHoleMapper, TreeHole> i
         treeHoles.forEach(treeHole -> {
             if (!StringUtils.hasText(treeHole.getAvatar())) {
                 //设置随机头像
-                treeHole.setAvatar(GetRequestParamsUtil.getRandomAvatar(treeHole.getId().toString()));
+                treeHole.setAvatar(DataCacheUtil.getRandomAvatar());
             }
             treeHole.setDeleted(null);
         });

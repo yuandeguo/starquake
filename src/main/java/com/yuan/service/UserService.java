@@ -38,7 +38,7 @@ public interface UserService extends IService<User> {
      */
     R emailForBind(String place, Integer flag,String authorization);
 
-    R updateSecretInfo(UserUpdateSecretInfoParam userUpdateSecretInfoParam, User user);
+    R updateSecretInfo(UserUpdateSecretInfoParam userUpdateSecretInfoParam, String authorization);
 
     R getCodeForForgetPasswordOrRegister(String place, Integer flag);
 

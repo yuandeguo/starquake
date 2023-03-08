@@ -2,9 +2,12 @@ package com.yuan.config;
 
 import com.yuan.interceptor.AuthorityVerifyInterceptor;
 import com.yuan.interceptor.WebInfoHandlerInterceptor;
+import com.yuan.service.RedisService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.annotation.Resource;
 
 /**
  * @author yuanyuan
@@ -14,6 +17,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class AddInterceptorConfig implements WebMvcConfigurer {
+    @Resource
+    private RedisService redisService;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new WebInfoHandlerInterceptor())
@@ -29,9 +35,10 @@ public class AddInterceptorConfig implements WebMvcConfigurer {
                         "/treeHole/admin/**",
                         "/user/admin/**",
                         "/webInfo/admin/**",
-                        "/weiYan/**"
+                        "/weiYan/**",
+                        "sort/redis/**"
                         );
-        registry.addInterceptor(new AuthorityVerifyInterceptor())
+        registry.addInterceptor(new AuthorityVerifyInterceptor(redisService))
                 .addPathPatterns(
                 "/article/admin/**",
                 "/comment/admin/**",

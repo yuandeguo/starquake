@@ -7,10 +7,7 @@ import com.yuan.mapper.SortMapper;
 import com.yuan.pojo.Article;
 import com.yuan.pojo.Label;
 import com.yuan.pojo.Sort;
-import com.yuan.service.ArticleService;
-import com.yuan.service.LabelService;
-import com.yuan.service.ResourceService;
-import com.yuan.service.SortService;
+import com.yuan.service.*;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +29,8 @@ public class SortServiceImpl extends ServiceImpl<SortMapper, Sort> implements So
 
     @Resource
     LabelService labelService;
-
+    @Resource
+    private RedisService redisService;
     @Resource
     private ArticleService articleService;
     @Override

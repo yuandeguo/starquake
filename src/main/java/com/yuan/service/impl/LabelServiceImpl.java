@@ -8,7 +8,11 @@ import com.yuan.pojo.Resource;
 import com.yuan.service.LabelService;
 import com.yuan.service.ResourceService;
 import com.yuan.utils.R;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import java.io.Serializable;
 
 /**
  * @author yuanyuan
@@ -45,5 +49,10 @@ public class LabelServiceImpl extends ServiceImpl<LabelMapper, Label> implements
             return R.fail("标签修改失败");
         }
         return R.success();
+    }
+
+    @Override
+    public Label getById(Serializable id) {
+        return super.getById(id);
     }
 }

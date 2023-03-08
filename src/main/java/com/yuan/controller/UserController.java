@@ -1,14 +1,8 @@
 package com.yuan.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yuan.annotations.LoginCheck;
-import com.yuan.myEnum.CommonConst;
+
 import com.yuan.params.*;
 import com.yuan.pojo.User;
-import com.yuan.utils.DataCacheUtil;
-import com.yuan.vo.UserVO;
 import com.yuan.service.UserService;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
-import java.util.List;
-
 /**
  * @author yuanyuan
  * @version V1.0
@@ -48,7 +39,6 @@ public class UserController {
      * 退出登录
      */
     @GetMapping("/logout")
-    @LoginCheck
     public R exitLogin(@RequestHeader("Authorization") String authorization) {
         return userService.exitLogin(authorization);
     }
@@ -59,7 +49,6 @@ public class UserController {
      * @return
      */
     @PostMapping("/admin/list")
-    @LoginCheck(0)
     public R listUser(@RequestBody SearchUserParam searchUserParam) {
       return R.success( userService.userList(searchUserParam));
     }
@@ -71,7 +60,6 @@ public class UserController {
      * flag = false：封禁
      */
     @PostMapping("/admin/changeUserStatusOrTypeParam")
-    @LoginCheck(0)
     public R changeUserStatusOrTypeParam(@RequestBody UserStatusOrTypeParam userStatusOrTypeParam) {
         return userService.changeUserStatusOrTypeParam(userStatusOrTypeParam);
 
@@ -105,11 +93,9 @@ return userService.updateUserInfo(user,authorization);
      * 3 密码：place=老密码&password=新密码
      */
     @PostMapping("/updateSecretInfo")
-    @LoginCheck
     public R updateSecretInfo(@RequestBody UserUpdateSecretInfoParam userUpdateSecretInfoParam,@RequestHeader("Authorization") String authorization) {
-        User user=(User)DataCacheUtil.get(authorization);
-        DataCacheUtil.remove(CommonConst.USER_CACHE + user.getId().toString());
-        return userService.updateSecretInfo(userUpdateSecretInfoParam,user);
+
+        return userService.updateSecretInfo(userUpdateSecretInfoParam,authorization);
     }
     /**
      * 注册或者忘记密码获取邮箱验证码

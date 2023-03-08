@@ -39,7 +39,7 @@ public class CommonConst {
     public static final String TOKEN_HEADER = "Authorization";
 
     /**
-     * Token过期时间：10天
+     * Token过期时间：1天
      */
     public static final long TOKEN_EXPIRE = 864000;
 
@@ -124,10 +124,6 @@ public class CommonConst {
      */
     public static final int SUMMARY = 80;
 
-    /**
-     * 留言的源
-     */
-    public static final int TREE_HOLE_COMMENT_SOURCE = 0;
 
     /**
      * 七牛云
@@ -183,14 +179,12 @@ public class CommonConst {
      * 资源路径
      */
     public static final String RESOURCE_PATH_TYPE_FRIEND = "friendUrl";
-    public static final String RESOURCE_PATH_TYPE_FUNNY = "funny";
-    public static final String RESOURCE_PATH_TYPE_LOVE_PHOTO = "lovePhoto";
+
 
     /**
      * 微言
      */
     public static final String WEIYAN_TYPE_FRIEND = "friend";
 
-    public static final String WEIYAN_TYPE_NEWS = "news";
 
 }
