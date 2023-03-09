@@ -30,6 +30,8 @@ public class AuthorityVerifyInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+
      String auth=  request.getHeader("Authorization");
      if(auth==null) {
          response.setContentType("application/json;charset=UTF-8");

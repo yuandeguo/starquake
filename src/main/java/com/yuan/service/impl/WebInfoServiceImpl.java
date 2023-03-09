@@ -29,7 +29,6 @@ public class WebInfoServiceImpl extends ServiceImpl<WebInfoMapper, WebInfo> impl
 
         WebInfo webInfo = baseMapper.selectById(1);
         DataCacheUtil.put(CommonConst.WEB_INFO,webInfo);
-        log.info("***WebInfoServiceImpl.getWebInfo业务结束，结果:{}", webInfo);
        return R.success(webInfo);
     }
 

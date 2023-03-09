@@ -1,8 +1,11 @@
 package com.yuan.config;
 
+import com.yuan.filter.UrlFilter;
 import com.yuan.interceptor.AuthorityVerifyInterceptor;
 import com.yuan.interceptor.WebInfoHandlerInterceptor;
 import com.yuan.service.RedisService;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -57,4 +60,14 @@ public class AddInterceptorConfig implements WebMvcConfigurer {
 
         ;
     }
+    @Bean
+    public FilterRegistrationBean<UrlFilter> logFilter() {
+        FilterRegistrationBean<UrlFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new UrlFilter(redisService));
+        registrationBean.addUrlPatterns("/*");
+        registrationBean.setName("LogFilter");
+        registrationBean.setOrder(1);
+        return registrationBean;
+    }
+
 }

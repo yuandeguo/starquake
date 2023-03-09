@@ -65,30 +65,5 @@ public R getSortInfo(){
     }
 
 
-    @Resource
-    private RedisService redisService;
-
-    @PostMapping("/redis")
-    public R updateSort0(@RequestParam("id")Integer id)
-    {   redisService.articleLikeUp(id);
-        redisService.articleHeatUp(id);
-        return R.success();
-    }
-    @PostMapping("/redis1")
-    public R updateSort1(@RequestParam("id")Integer id)
-    {
-        System.out.println(redisService.getArticleLikeAndHeat(id));
-        return R.success();
-    }
-    @PostMapping("/redis/2")
-    public R uer(@RequestParam("id")Integer id)
-    {
-        Sort one = sortService.getById(id);
-        System.out.println(one);
-        redisService.set("test",one,180);
-
-        System.out.println(    redisService.get("test",one.getClass()));
-        return R.success();
-    }
 
 }

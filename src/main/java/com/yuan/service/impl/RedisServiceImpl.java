@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuan.params.ArticleLikeAndViewCurrentParam;
 import com.yuan.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
@@ -13,8 +15,10 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.params.SetParams;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author yuanyuan
@@ -132,6 +136,131 @@ public class RedisServiceImpl implements RedisService {
         return true;
     }
 
+    @Override
+    public     List<ArticleLikeAndViewCurrentParam>  getAllArticleLikeAndHeat() {
+
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            Set<String> keys = jedis.keys("article::**");
+            List<ArticleLikeAndViewCurrentParam> list=new ArrayList<>();
+            for (String Aid:keys)
+            {
+                String substring = Aid.substring(9);
+                Map<String, String> map = jedis.hgetAll(Aid);
+                ArticleLikeAndViewCurrentParam param=new ArticleLikeAndViewCurrentParam(Integer.parseInt(substring),0,0);
+                if(map!=null&&!map.isEmpty()) {
+                    Integer num = 0;
+                    String like = map.get("like");
+
+                    if (StringUtils.hasText(like)) {
+                        num = Integer.parseInt(like);
+                        param.setLike(num);
+                    }
+                    num=0;
+                    String heat = map.get("heat");
+                    if (StringUtils.hasText(heat)) {
+                        num = Integer.parseInt(heat);
+                        param.setView(num);
+                    }
+                }
+                list.add(param);
+            }
+
+return list;
+
+        }  finally {
+            if(null!=jedis) jedis.close();//新版本的close方法，如果是从JedisPool中取出的，则会放回到连接池中，并不会销毁。
+        }
+
+    }
+
+    @Override
+    public boolean deleteArticleLikeAndViewCurrentParam(List<ArticleLikeAndViewCurrentParam> list) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            for (ArticleLikeAndViewCurrentParam item:list)
+            {
+                jedis.del("article::"+item.getArticleId());
+            }
+        }
+        finally{
+            if(null != jedis)
+                jedis.close(); // 释放资源还给连接池
+        }
+        return true;
+
+
+
+
+    }
+
+    @Override
+    public void setVisitIp(String ip) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            jedis.sadd("oneDayVisitIp",ip);
+        }
+        finally{
+            if(null != jedis)
+                jedis.close(); // 释放资源还给连接池
+        }
+
+
+    }
+
+    @Override
+    public Integer getVisitIp() {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            Set<String> oneDayVisitIp = jedis.smembers("oneDayVisitIp");
+            return  oneDayVisitIp.size();
+
+        }
+        finally{
+            if(null != jedis)
+                jedis.close(); // 释放资源还给连接池
+        }
+
+    }
+
+    @Override
+    public void setVisitUrl() {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            jedis.incrBy("oneDayVisitUrl",1);
+        }
+        finally{
+            if(null != jedis)
+                jedis.close(); // 释放资源还给连接池
+        }
+    }
+    @Override
+    public Integer getVisitUrl() {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            String oneDayVisitUrl = jedis.get("oneDayVisitUrl");
+            StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+            byte[] serializeValue = stringRedisSerializer.serialize("0");
+            byte[] serializeKey = stringRedisSerializer.serialize("oneDayVisitUrl");
+            jedis.set(serializeKey,serializeValue);
+            if(StringUtils.hasText(oneDayVisitUrl))
+            return Integer.parseInt(oneDayVisitUrl);
+            else return 0;
+        }
+        finally{
+            if(null != jedis)
+                jedis.close(); // 释放资源还给连接池
+        }
+
+    }
+
+
 
     public boolean articleDataUp(String fields,Integer articleId)
     {
@@ -152,5 +281,6 @@ public class RedisServiceImpl implements RedisService {
         }
         return true;
     }
+
 
 }

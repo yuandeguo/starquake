@@ -27,10 +27,12 @@ public class CorsConfig {
         List<String> allowedOriginPatterns = new ArrayList<>();
         allowedOriginPatterns.add("*");
         config.setAllowedOriginPatterns(allowedOriginPatterns);
-
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
+
+
+
 }

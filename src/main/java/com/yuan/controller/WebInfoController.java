@@ -52,7 +52,6 @@ public class WebInfoController {
     @GetMapping("/getWebInfo")
     public R getWebInfo0() {
       return  webInfoService.getWebInfo();
-
     }
 
 }

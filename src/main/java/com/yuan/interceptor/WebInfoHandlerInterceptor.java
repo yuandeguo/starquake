@@ -21,6 +21,7 @@ public class WebInfoHandlerInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
         WebInfo webInfo = (WebInfo) DataCacheUtil.get(CommonConst.WEB_INFO);
         if (webInfo == null || !webInfo.getStatus()) {
             response.setContentType("application/json;charset=UTF-8");

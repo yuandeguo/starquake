@@ -115,6 +115,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (searchArticleParam.getLabelId() != null) {
             queryWrapper.eq("label_id", searchArticleParam.getLabelId());
         }
+
         IPage<Article> page=new Page<>(searchArticleParam.getCurrent(),searchArticleParam.getSize());
         page= baseMapper.selectPage(page, queryWrapper);
         List<Article> records = page.getRecords();
@@ -247,7 +248,6 @@ return R.success();
     public R getArticleByIdFront(Integer id) {
         Article article = baseMapper.selectById(id);
         ArticleVo articleVO = buildArticleVO(article);
-        log.info("***ArticleServiceImpl.getArticleByIdFront业务结束，结果:{}", articleVO);
         return R.success(articleVO);
 
     }
@@ -265,16 +265,21 @@ return R.success();
             articleVO.setArticleCover("http://rqldcqw23.hn-bkt.clouddn.com/articleCover/Sara11677397871718631.jpg");
         }
         Map<String, String> articleLikeAndHeat= redisService.getArticleLikeAndHeat(article.getId());
-
         if(articleLikeAndHeat!=null&&!articleLikeAndHeat.isEmpty()) {
             Integer num = 0;
-            log.info("***ArticleController.getArticleByIdFront业务结束，结果:{}", articleLikeAndHeat);
-            if (articleLikeAndHeat.get("like") != null) ;
-            num = Integer.parseInt(articleLikeAndHeat.get("like"));
-            articleVO.setLikeCount(num + articleVO.getLikeCount());
-            if (articleLikeAndHeat.get("heat") != null) ;
-            num = Integer.parseInt(articleLikeAndHeat.get("heat"));
-            articleVO.setViewCount(num + articleVO.getViewCount());
+            String like = articleLikeAndHeat.get("like");
+
+            if (StringUtils.hasText(like)) {
+                num = Integer.parseInt(like);
+                articleVO.setLikeCount(num + articleVO.getLikeCount());
+            }
+            num=0;
+            String heat = articleLikeAndHeat.get("heat");
+            if (StringUtils.hasText(heat)) {
+                num = Integer.parseInt(heat);
+                articleVO.setViewCount(num + articleVO.getViewCount());
+            }
+
 
         }
 

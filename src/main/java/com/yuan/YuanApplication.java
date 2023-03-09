@@ -1,8 +1,14 @@
 package com.yuan;
 
+import com.alibaba.druid.filter.logging.LogFilter;
+import com.yuan.filter.UrlFilter;
+import com.yuan.listener.FirstListener;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -24,4 +30,6 @@ public class YuanApplication {
     public static void main(String[] args) {
         SpringApplication.run(YuanApplication.class, args);
     }
+
+
 }

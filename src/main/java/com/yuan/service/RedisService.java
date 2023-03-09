@@ -1,5 +1,8 @@
 package com.yuan.service;
 
+import com.yuan.params.ArticleLikeAndViewCurrentParam;
+
+import java.util.List;
 import java.util.Map;
 
 public interface RedisService {
@@ -28,4 +31,15 @@ public interface RedisService {
     <T> T get(String key, Class<T> clazz);
 
     boolean remove(String key);
+
+    List<ArticleLikeAndViewCurrentParam>  getAllArticleLikeAndHeat();
+
+    boolean deleteArticleLikeAndViewCurrentParam(List<ArticleLikeAndViewCurrentParam> list);
+
+    void setVisitIp(String ip);
+    Integer getVisitIp();
+    void setVisitUrl();
+    Integer getVisitUrl();
+
+
 }

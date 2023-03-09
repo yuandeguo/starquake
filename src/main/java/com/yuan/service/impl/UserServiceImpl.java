@@ -258,8 +258,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             List<String> mail = new ArrayList<>();
             mail.add(place);
             String text = getCodeMail(i);
+
             WebInfo webInfo = (WebInfo) DataCacheUtil.get(CommonConst.WEB_INFO);
-            mailUtil.sendMailMessage(mail, "您有一封来自" + (webInfo == null ? "寻国记" : webInfo.getWebName()) + "的回执！", text);
+            mailUtil.sendMailMessage(mail, "您有一封来自" + (webInfo == null ? "starquake" : webInfo.getWebName()) + "的回执！", text);
         }
         redisService.set(CommonConst.FORGET_PASSWORD + place + "_" + flag, Integer.valueOf(i), 300);
         return R.success();
@@ -440,8 +441,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String webName = (webInfo == null ? "starQuake" : webInfo.getWebName());
         return String.format(MailUtil.mailText,
                 webName,
-                "yuan",
-                "yuan",
+                "你收到来自 圆的果 的消息",
+                " Hi, 朋友  ",
                 String.format(codeFormat, code),
                 "",
                 webName);

@@ -159,8 +159,6 @@ public class DataCacheUtil {
                int count=randomAvatars.size();
                 Random r = new Random();
                 int rin = r.nextInt(count); // 生成[0,10]区间的整数
-                System.out.println(count);
-                System.out.println(rin);
                return randomAvatars.get(rin);
             }
         }
