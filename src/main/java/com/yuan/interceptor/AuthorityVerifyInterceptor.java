@@ -39,7 +39,7 @@ public class AuthorityVerifyInterceptor implements HandlerInterceptor {
          return false;
      }
     User user= redisService.get(auth, User.class);
-        log.info("***AuthorityVerifyInterceptor.preHandle业务结束，结果:{}",user );
+
      if(user==null)
      {
          response.setContentType("application/json;charset=UTF-8");

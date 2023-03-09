@@ -129,7 +129,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public R exitLogin(String authorization) {
         User user =redisService.get(authorization, User.class);
-        log.info("***UserServiceImpl.exitLogin业务结束，结果:{}", authorization);
+
         if(user==null)
             return R.success();
        Integer  userId=user.getId();
@@ -174,7 +174,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 u.setOpenId(null);
             });
         }
-        log.info("***UserServiceImpl.userList业务结束，结果:{}",page.getRecords() );
+
         return page;
     }
 
@@ -189,9 +189,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public R emailForBind(String place, Integer flag,String authorization) {
         int code = new Random().nextInt(900000) + 100000;
         if (flag == 1) {
-            log.info(place + "---" + "手机验证码---" + code);
+
         } else if (flag == 2) {
-            log.info(place + "---" + "邮箱验证码---" + code);
+
             List<String> mail = new ArrayList<>();
             mail.add(place);
 //            获取样式
@@ -243,7 +243,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
         userVO.setPassword(null);
-        log.info("***UserServiceImpl.updateSecretInfo业务结束，结果:{}",userVO );
+
         return R.success(userVO);
     }
 
@@ -251,9 +251,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public R getCodeForForgetPasswordOrRegister(String place, Integer flag) {
         int i = new Random().nextInt(900000) + 100000;
         if (flag == 1) {
-            log.info(place + "---" + "手机验证码---" + i);
+
         } else if (flag == 2) {
-            log.info(place + "---" + "邮箱验证码---" + i);
+
 
             List<String> mail = new ArrayList<>();
             mail.add(place);
@@ -411,7 +411,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return R.fail("修改失败");
         }
         if(userStatusOrTypeParam.getUserStatus()!=null&&!userStatusOrTypeParam.getUserStatus())
-        {     log.info("***UserController.changeUserStatusOrTypeParam业务结束，结果:{}",userStatusOrTypeParam.getUserStatus() );
+        {
 
             //管理员
             if(redisService.get(CommonConst.ADMIN_TOKEN + user.getId(),String.class) != null)

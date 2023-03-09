@@ -91,7 +91,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
         articleIPage.setRecords(collect);
         articleIPage.setTotal(page.getTotal());
-        log.info("***ArticleServiceImpl.listArticle业务结束，结果:{}", articleIPage.getRecords());
 
         return R.success(articleIPage);
     }

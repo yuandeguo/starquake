@@ -13,27 +13,5 @@ import org.springframework.util.StringUtils;
  */
 @Component
 public class DataAutoFillHandle  {
-    /**
-     * 插入元对象字段填充（用于插入时对公共字段的填充）
-     *
-     * @param metaObject 元对象
-     */
-//    @Override
-//    public void insertFill(MetaObject metaObject) {
-//        this.strictInsertFill(metaObject, "createBy", String.class, !StringUtils.hasText(GetRequestParamsUtil.getUsername()) ? "yuan" : GetRequestParamsUtil.getUsername());
-//    }
-
-
-    /**
-     * 更新元对象字段填充（用于更新时对公共字段的填充）
-     *
-     * @param metaObject 元对象
-     */
-//    @Override
-//    public void updateFill(MetaObject metaObject) {
-//        this.strictInsertFill(metaObject, "updateBy", String.class, !StringUtils.hasText(GetRequestParamsUtil.getUsername()) ? "yuan" : GetRequestParamsUtil.getUsername());
-//    }
-
-
 
 }

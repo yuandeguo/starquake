@@ -54,7 +54,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         re.setUserId(( redisService.get(authorization,User.class)).getId());
         re.setCreateTime( LocalDateTimeUtil.now());
         save(re);
-        log.info("***ResourceController.saveResource业务结束，结果:{}",re );
         return R.success();
     }
 }

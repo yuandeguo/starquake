@@ -159,21 +159,6 @@ public class CommonConst {
 
     public static final String PATH_TYPE_INTERNET_MEME = "internetMeme";
 
-    public static final String PATH_TYPE_IM_GROUP_AVATAR = "im/groupAvatar";
-
-    public static final String PATH_TYPE_IM_GROUP_MESSAGE = "im/groupMessage";
-
-    public static final String PATH_TYPE_IM_FRIEND_MESSAGE = "im/friendMessage";
-
-    public static final String PATH_TYPE_FUNNY_URL = "funnyUrl";
-
-    public static final String PATH_TYPE_FUNNY_COVER = "funnyCover";
-
-    public static final String PATH_TYPE_LOVE_COVER = "love/bgCover";
-
-    public static final String PATH_TYPE_LOVE_MAN = "love/manCover";
-
-    public static final String PATH_TYPE_LOVE_WOMAN = "love/womanCover";
 
     /**
      * 资源路径

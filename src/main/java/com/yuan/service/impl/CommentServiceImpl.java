@@ -62,7 +62,6 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
             articleQueryWrapper.select("id");
             articleQueryWrapper.eq("user_id",user.getId());
             List<Integer> integers =   articleService.listObjs(articleQueryWrapper).stream().map(i->(Integer)i).collect(Collectors.toList());
-            log.info("***CommentServiceImpl.searchCommentList业务结束，结果:{}",integers );
             IPage<Comment> page=new Page<>();
             if(integers.isEmpty())
                 return R.success( page);
@@ -79,7 +78,6 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
         }
         IPage<Comment> page=new Page<>(searchCommentParam.getCurrent(),searchCommentParam.getSize());
         page= baseMapper.selectPage(page, queryWrapper);
-        log.info("***CommentServiceImpl.searchCommentList业务结束，结果:{}", page.getRecords());
          return   R.success( page);
     }
 

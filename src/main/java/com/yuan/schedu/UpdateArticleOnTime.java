@@ -49,8 +49,6 @@ public class UpdateArticleOnTime {
                 log.info("***UpdateArticleOnTime.scheduled业务结束inFor，结果:{}",update );
             }
             boolean b = redisService.deleteArticleLikeAndViewCurrentParam(allArticleLikeAndHeat);
-            log.info("***UpdateArticleOnTime.scheduled业务结束inFor，结果:{}",b );
-
         }
 
     @Scheduled(cron = "0 0 1 * * ? ")
@@ -65,11 +63,9 @@ public class UpdateArticleOnTime {
         visitNum.setNum(numUrl);
         visitNum.setType(2);
         visitNumMapper.insert(visitNum);
+        log.info("***UpdateArticleOnTime.scheduled业务结束inFor，结果:{}",numIp+"-----"+numUrl);
         redisService.remove("oneDayVisitUrl");
         redisService.remove("oneDayVisitIp");
-
-
-
 
     }
 }
