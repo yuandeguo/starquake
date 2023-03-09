@@ -128,13 +128,13 @@ public class CommonConst {
     /**
      * 七牛云
      */
-    public static final String ACCESS_KEY = "MgO-SncVeUFRzH-n8LrzeL1O2B6vYd-ZCggEWTrW";
+    public static final String ACCESS_KEY = "$$";
 
-    public static final String SECRET_KEY = "otpPxPsE41zj5pKnapjoY8O72SCYIPFYviP24haW";
+    public static final String SECRET_KEY = "$$";
 
-    public static final String BUCKET = "pppyyy";
+    public static final String BUCKET = "$$";
 
-    public static final String DOWNLOAD_URL = "rqldcqw23.hn-bkt.clouddn.com";
+    public static final String DOWNLOAD_URL = "$$";
 
     /**
      * 资源类型
