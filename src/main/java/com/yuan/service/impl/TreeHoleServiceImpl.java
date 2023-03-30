@@ -40,7 +40,7 @@ public class TreeHoleServiceImpl extends ServiceImpl<TreeHoleMapper, TreeHole> i
             int i = new Random().nextInt(count + 1 - CommonConst.TREE_HOLE_COUNT);
             QueryWrapper<TreeHole> queryWrapper=new QueryWrapper<>();
             queryWrapper.last("limit "+String.valueOf(i)+", 200");
-
+        //    queryWrapper.select("select * from tree_hole as t_table (select id from tree_hole order by id limit)"+String.valueOf(i)+", 200) as temp where temp.id=t_table.id");
             treeHoles =baseMapper.selectList(queryWrapper);
         } else {
             treeHoles = baseMapper.selectList(null);

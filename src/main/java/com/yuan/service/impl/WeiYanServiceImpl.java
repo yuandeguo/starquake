@@ -12,6 +12,7 @@ import com.yuan.pojo.WeiYan;
 import com.yuan.service.RedisService;
 import com.yuan.service.WeiYanService;
 import com.yuan.utils.R;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -26,17 +27,25 @@ import java.time.LocalDateTime;
  * @Description null
  */
 @Service
+@Slf4j
 public class WeiYanServiceImpl extends ServiceImpl<WeiYanMapper, WeiYan> implements WeiYanService {
     @Resource
     private RedisService redisService;
     @Override
     public R listWeiYan(PageParam pageParam) {
-        IPage<WeiYan> page=new Page<>(pageParam.getCurrent(),pageParam.getSize());
-        QueryWrapper<WeiYan> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("is_public",Boolean.TRUE);
-        queryWrapper.orderByDesc("create_time");
-        IPage<WeiYan> weiYanIPage = baseMapper.selectPage(page, queryWrapper);
-        return R.success(weiYanIPage);
+        Page<WeiYan> res=redisService.get("listWeiYan:"+pageParam.getCurrent()+':'+pageParam.getSize(), Page.class);
+        if(res==null)
+        {
+
+           res = new Page<>(pageParam.getCurrent(), pageParam.getSize());
+            QueryWrapper<WeiYan> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("is_public", Boolean.TRUE);
+            queryWrapper.orderByDesc("create_time");
+            res = baseMapper.selectPage(res, queryWrapper);
+            redisService.set("listWeiYan:"+pageParam.getCurrent()+':'+pageParam.getSize(),res,CommonConst.CACHE_EXPIRE);
+            log.info("***WeiYanServiceImpl.listWeiYan业务结束，结果:{}",res );;
+        }
+        return R.success(res);
     }
 
     @Override
@@ -56,6 +65,7 @@ public class WeiYanServiceImpl extends ServiceImpl<WeiYanMapper, WeiYan> impleme
         weiYan.setType(CommonConst.WEIYAN_TYPE_FRIEND);
         weiYan.setCreateTime(LocalDateTime.now());
         save(weiYan);
+        redisService.removeList("listWeiYan:*");
         return R.success();
     }
 
@@ -72,6 +82,7 @@ public class WeiYanServiceImpl extends ServiceImpl<WeiYanMapper, WeiYan> impleme
             lambdaUpdate().eq(WeiYan::getId, id)
                 .eq(WeiYan::getUserId, userId)
                 .remove();
+        redisService.removeList("listWeiYan:*");
         return R.success();
     }
 }

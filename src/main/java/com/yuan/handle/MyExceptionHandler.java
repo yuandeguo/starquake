@@ -13,8 +13,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import redis.clients.jedis.exceptions.JedisExhaustedPoolException;
-
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -49,9 +47,6 @@ public class MyExceptionHandler {
 //        参数异常
         if (ex instanceof MissingServletRequestParameterException) {
             return R.fail(CodeMsg.PARAMETER_ERROR);
-        }
-        if (ex instanceof JedisExhaustedPoolException) {
-            return R.fail("服务器繁忙，请稍后再试");
         }
         return R.fail(CodeMsg.FAIL);
     }

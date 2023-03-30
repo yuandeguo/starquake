@@ -134,7 +134,7 @@ public class CommonConst {
 
     public static final String BUCKET = "pppyyy";
 
-    public static final String DOWNLOAD_URL = "rqldcqw23.hn-bkt.clouddn.com";
+    public static final String DOWNLOAD_URL = "starquake.cn";
 
     /**
      * 资源类型
@@ -170,6 +170,21 @@ public class CommonConst {
      * 微言
      */
     public static final String WEIYAN_TYPE_FRIEND = "friend";
+
+    /**
+     * 缓存设计
+     */
+    //文章
+    public static final String ARTICLE_CACHE="article_cache:";
+    //标签
+    public static final String SORT_CACHE="sort_cache:";
+    //评论
+    public static final String Label_CACHE="label_cache:";
+
+    /**
+     * Token过期时间：1天
+     */
+    public static final long CACHE_EXPIRE = 4*60*60;
 
 
 }

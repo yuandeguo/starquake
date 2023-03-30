@@ -1,4 +1,5 @@
 package com.yuan.controller;
+import com.yuan.annotations.OperationLogAnnotation;
 import com.yuan.params.PageParam;
 import com.yuan.pojo.TreeHole;
 import com.yuan.service.TreeHoleService;
@@ -49,6 +50,7 @@ public class TreeHoleController {
     /**
      * 保存
      */
+    @OperationLogAnnotation(operModul = "saveTreeHole",operType = "保存",operDesc = "保存留言")
     @PostMapping("/saveTreeHole")
     public R saveTreeHole(@RequestBody TreeHole treeHole) {
         if (!StringUtils.hasText(treeHole.getMessage())) {

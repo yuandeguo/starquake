@@ -1,5 +1,6 @@
 package com.yuan.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yuan.params.ArticleLikeAndViewCurrentParam;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public interface RedisService {
 
       void set(String key, Object o, long expire);
     <T> T get(String key, Class<T> clazz);
-
+    String get(String key);
     boolean remove(String key);
 
     List<ArticleLikeAndViewCurrentParam>  getAllArticleLikeAndHeat();
@@ -42,4 +43,9 @@ public interface RedisService {
     Integer getVisitUrl();
 
 
+    void removeList(String s);
+
+    boolean getLock(String lockKey);
+
+    void unlock(String lockKey);
 }

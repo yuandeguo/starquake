@@ -1,4 +1,5 @@
 package com.yuan.controller;
+import com.yuan.annotations.OperationLogAnnotation;
 import com.yuan.params.SearchCommentParam;
 import com.yuan.pojo.Comment;
 import com.yuan.service.CommentService;
@@ -27,6 +28,7 @@ public class CommentController {
         return commentService.searchCommentList(searchCommentParam,authorization);
 
     }
+    @OperationLogAnnotation(operModul = "deleteComment",operType = "删除",operDesc = "deleteComment")
     @GetMapping("/admin/deleteComment")
     public R deleteComment(@RequestParam("id") Integer id)
     {
@@ -55,7 +57,7 @@ public class CommentController {
     }
 /**
  * 保存评论
- */
+ */ @OperationLogAnnotation(operModul = "saveComment",operType = "保存",operDesc = "saveComment")
     @PostMapping("/saveComment")
     public R saveComment(@Validated @RequestBody Comment comment,@RequestHeader("Authorization") String authorization) {
 

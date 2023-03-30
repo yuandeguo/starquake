@@ -52,7 +52,7 @@ public class ResourceController {
         return R.success();
 
     }
-    @PostMapping("/admin/deleteResource")
+    @GetMapping("/admin/deleteResource")
     public R deleteResource(@RequestParam("path") String path) {
         QiniuUtil.deleteFile(Collections.singletonList(path.replace(CommonConst.DOWNLOAD_URL, "")));
         resourceService.lambdaUpdate().eq(Resource::getPath, path).remove();

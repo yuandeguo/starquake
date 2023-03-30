@@ -1,4 +1,5 @@
 package com.yuan.controller;
+import com.yuan.annotations.OperationLogAnnotation;
 import com.yuan.params.ArticleUpdateStatusParams;
 import com.yuan.params.SearchArticleParam;
 import com.yuan.pojo.Article;
@@ -39,6 +40,7 @@ public class ArticleController {
     /**
      *更新文章的状态
      */
+    @OperationLogAnnotation(operModul = "管理员-更新文章",operType = "更新",operDesc = "更新文章的状态")
     @PostMapping("/admin/updateArticleStatus")
     public R updateArticleStatus(@RequestBody ArticleUpdateStatusParams articleUpdateStatusParams) {
          return articleService.updateArticleStatus(articleUpdateStatusParams);
@@ -49,6 +51,7 @@ public class ArticleController {
      * @param id
      * @return
      */
+    @OperationLogAnnotation(operModul = "管理员-删除文章",operType = "删除",operDesc = "删除文章")
     @GetMapping("/admin/deleteArticle")
     public R deleteArticle(@RequestParam("id") Integer id)
     {
@@ -62,6 +65,7 @@ public class ArticleController {
      * @param id
      * @return
      */
+
     @GetMapping("/admin/getArticleById")
     public R getArticleById(@RequestParam("id") Integer id) {
 return articleService.getArticleById(id);
@@ -71,13 +75,11 @@ return articleService.getArticleById(id);
     /**
      * 更新文章
      */
+    @OperationLogAnnotation(operModul = "管理员-更新文章",operType = "更新",operDesc = "更新文章")
     @PostMapping("/admin/updateArticle")
     public R updateArticle(@Validated @RequestBody Article article, BindingResult result,@RequestHeader("Authorization") String authorization) {
         if(result.hasErrors())
             return R.fail("文章参数错误");
-
-
-
   return articleService.updateArticle(article,authorization);
 
 
@@ -104,7 +106,6 @@ return articleService.getArticleById(id);
     @PostMapping("/listArticle")
     public R listArticle(@RequestBody SearchArticleParam searchArticleParam) {
       return  articleService.listArticleByFront(searchArticleParam);
-
     }
 
     /**
@@ -116,6 +117,8 @@ return articleService.getArticleById(id);
     public R getArticleByIdFront(@RequestParam("id") Integer id) {
         R r = articleService.getArticleByIdFront(id);
         ArticleVo data = (ArticleVo)r.getData();
+        if(data==null)
+            return R.fail("文章已经被删除");
         redisService.articleHeatUp(id);
         data.setViewCount(1+ data.getViewCount());
         r.setData(data);

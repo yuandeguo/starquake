@@ -4,17 +4,12 @@ package com.yuan.config;
  * @author yuanyuan
  * @version V1.0
  * @date 2023/3/7 16:07
- * @Description null
+ * @Description 优化不用这个了
  */
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
-import java.time.Duration;
 
-@Configuration
+//@Configuration
 public class JedisPoolFactory {
     @Value("${spring.redis.host}")
     private String host;
@@ -43,16 +38,16 @@ public class JedisPoolFactory {
     /**
      * 初始化Redis连接池
      */
-    @Bean
-    public JedisPool generateJedisPoolFactory() {
-        JedisPoolConfig poolConfig = new JedisPoolConfig();
-        poolConfig.setMaxTotal(maxActive);
-        poolConfig.setMaxIdle(maxIdle);
-        poolConfig.setMinIdle(minIdle);
-        poolConfig.setMaxWait(Duration.ofMillis(maxWaitMillis));
-        // 连接耗尽时是否阻塞, false报异常,true阻塞直到超时, 默认true
-        poolConfig.setBlockWhenExhausted(Boolean.TRUE);
-        JedisPool jedisPool = new JedisPool(poolConfig, host, port, timeout,password);
-        return jedisPool;
-    }
+//    @Bean
+//    public JedisPool generateJedisPoolFactory() {
+//        JedisPoolConfig poolConfig = new JedisPoolConfig();
+//        poolConfig.setMaxTotal(maxActive);
+//        poolConfig.setMaxIdle(maxIdle);
+//        poolConfig.setMinIdle(minIdle);
+//        poolConfig.setMaxWait(Duration.ofMillis(maxWaitMillis));
+//        // 连接耗尽时是否阻塞, false报异常,true阻塞直到超时, 默认true
+//        poolConfig.setBlockWhenExhausted(Boolean.TRUE);
+//        JedisPool jedisPool = new JedisPool(poolConfig, host, port, timeout,password);
+//        return jedisPool;
+//    }
 }
