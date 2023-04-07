@@ -1,7 +1,7 @@
 package com.yuan.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yuan.params.ArticleLikeAndViewCurrentParam;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -48,4 +48,10 @@ public interface RedisService {
     boolean getLock(String lockKey);
 
     void unlock(String lockKey);
+
+    StringRedisTemplate getStringRedisTemplate();
+
+    String limit_listPush(String limitListKey);
+
+
 }

@@ -1,5 +1,6 @@
 package com.yuan.config;
 
+import com.yuan.filter.LimitFlowFilter;
 import com.yuan.filter.UrlFilter;
 import com.yuan.interceptor.AuthorityVerifyInterceptor;
 import com.yuan.interceptor.WebInfoHandlerInterceptor;
@@ -61,13 +62,24 @@ public class AddInterceptorConfig implements WebMvcConfigurer {
         ;
     }
     @Bean
+    public FilterRegistrationBean<LimitFlowFilter> limitFlowFilter() {
+        FilterRegistrationBean<LimitFlowFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new LimitFlowFilter(redisService));
+        registrationBean.addUrlPatterns("/*");
+        registrationBean.setName("limitFlowFilter");
+        registrationBean.setOrder(1);
+        return registrationBean;
+    }
+    @Bean
     public FilterRegistrationBean<UrlFilter> logFilter() {
         FilterRegistrationBean<UrlFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new UrlFilter(redisService));
         registrationBean.addUrlPatterns("/*");
         registrationBean.setName("LogFilter");
-        registrationBean.setOrder(1);
+        registrationBean.setOrder(2);
         return registrationBean;
     }
+
+
 
 }

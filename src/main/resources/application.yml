@@ -10,8 +10,8 @@ mybatis-plus:
 spring:
   mail:
     host: smtp.qq.com
-    username: $$
-    password: $$
+    username: 1876218322@qq.com
+    password: veyvarduykpqejih
     default-encoding: utf-8
     protocol: smtp
     port: 465
@@ -26,9 +26,9 @@ spring:
   main:
     allow-circular-references: true
   datasource:
-    username: $$
-    password: $$
-    url: jdbc:mysql://$$:3306/poetize?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: pinger1234567
+    url: jdbc:mysql://47.113.219.144:3306/poetize?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
 
@@ -95,8 +95,8 @@ spring:
         enabled: true                   # 启用StatViewServlet
         url-pattern: /druid/*           # 访问内置监控页面的路径，内置监控页面的首页是/druid/index.html
         reset-enable: false              # 不允许清空统计数据,重新计算
-        login-username: $$            # 配置监控页面访问密码
-        login-password: $$
+        login-username: starquake            # 配置监控页面访问密码
+        login-password: pinger1234567
         deny:
 
 
@@ -114,7 +114,7 @@ spring:
         min-idle: 10
         max-idle: 20
         max-active: 20
-    database: 3
+    database: 2
 
 
 

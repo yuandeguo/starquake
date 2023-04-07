@@ -4,19 +4,18 @@ import cn.hutool.core.util.BooleanUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuan.myEnum.CommonConst;
+import com.yuan.myEnum.TokenBucketLimiterConst;
 import com.yuan.params.ArticleLikeAndViewCurrentParam;
 import com.yuan.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.*;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -238,6 +237,30 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public void unlock(String lockKey) {
         stringRedisTemplate.delete(lockKey);
+    }
+
+    @Override
+    public StringRedisTemplate getStringRedisTemplate() {
+        return stringRedisTemplate;
+    }
+
+    @Override
+    public String limit_listPush(String limitListKey) {
+        DefaultRedisScript<String> redisScript = new DefaultRedisScript<>();
+        redisScript.setResultType(String.class);
+        redisScript.setScriptText(TokenBucketLimiterConst.redLua);
+
+
+        List<String> keyList = new ArrayList<>();
+        keyList.add(limitListKey);
+
+        String execute =stringRedisTemplate.execute(redisScript, keyList,String.valueOf(TokenBucketLimiterConst.intervalPerPermit)
+                ,String.valueOf(System.currentTimeMillis())
+        ,String.valueOf(TokenBucketLimiterConst.initTokens)
+        ,String.valueOf(TokenBucketLimiterConst.bucketMaxTokens)
+        ,String.valueOf(TokenBucketLimiterConst.resetBucketInterval));
+return  execute;
+
     }
 
 
