@@ -36,7 +36,6 @@ public class LimitFlowFilter implements Filter {
         Object result = redisService.limit_listPush("limit_list");
 
         if(Integer.valueOf(result.toString())<=0){
-            System.out.println(result.toString());
             // 设置响应的状态码为需要返回的错误码
             HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
             httpResponse.setHeader("Access-Control-Allow-Origin", "*");

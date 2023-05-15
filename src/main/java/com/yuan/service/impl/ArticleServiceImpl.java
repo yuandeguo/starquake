@@ -140,8 +140,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                     return articleVO;
                 }).collect(Collectors.toList());
             }
-
-
             articleIPage.setRecords(collect);
             articleIPage.setTotal(page.getTotal());
             redisService.set("listArticleByFront:"+searchArticleParam.getRecommendStatus()+":"+searchArticleParam.getSortId()+":"+searchArticleParam.getLabelId()+":"+searchArticleParam.getCurrent()+":"+searchArticleParam.getSize(),articleIPage,CommonConst.CACHE_EXPIRE);

@@ -48,7 +48,6 @@ public class UrlFilter implements Filter {
             //打印所有头信息
             String s = headerNames.nextElement();
             String header = request.getHeader(s);
-
         }
         String unknown = "unknown";
         if (ipAddresses == null || ipAddresses.length() == 0 || unknown.equalsIgnoreCase(ipAddresses)) {

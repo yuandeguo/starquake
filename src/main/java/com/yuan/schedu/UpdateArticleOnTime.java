@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 public class UpdateArticleOnTime {
 
-        @Autowired
+        @Resource
     RedisService redisService;
         @Resource
     ArticleService articleService;
@@ -54,7 +54,7 @@ public class UpdateArticleOnTime {
             boolean b = redisService.deleteArticleLikeAndViewCurrentParam(allArticleLikeAndHeat);
         }
 
-
+    @Scheduled(cron = "0 0 1 * * ? ")
     public void scheduled2() {
         Integer numIp=redisService.getVisitIp();
         VisitNum visitNum=new VisitNum();
@@ -72,21 +72,9 @@ public class UpdateArticleOnTime {
 
     }
 
-    @Scheduled(cron = "0 0 1 * * ? ")
+
     public void limitListPushOnScheduled() {
-        Integer numIp=redisService.getVisitIp();
-        VisitNum visitNum=new VisitNum();
-        visitNum.setNum(numIp);
-        visitNum.setWriteTime(LocalDateTime.now());
-        visitNum.setType(1);
-        visitNumMapper.insert(visitNum);
-        Integer numUrl=redisService.getVisitUrl();
-        visitNum.setNum(numUrl);
-        visitNum.setType(2);
-        visitNumMapper.insert(visitNum);
-        log.info("***UpdateArticleOnTime.scheduled业务结束inFor，结果:{}",numIp+"-----"+numUrl);
-        redisService.remove("oneDayVisitUrl");
-        //  redisService.remove("oneDayVisitIp");
+
 
     }
 

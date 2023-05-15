@@ -249,17 +249,14 @@ public class RedisServiceImpl implements RedisService {
         DefaultRedisScript<String> redisScript = new DefaultRedisScript<>();
         redisScript.setResultType(String.class);
         redisScript.setScriptText(TokenBucketLimiterConst.redLua);
-
-
         List<String> keyList = new ArrayList<>();
         keyList.add(limitListKey);
-
         String execute =stringRedisTemplate.execute(redisScript, keyList,String.valueOf(TokenBucketLimiterConst.intervalPerPermit)
                 ,String.valueOf(System.currentTimeMillis())
         ,String.valueOf(TokenBucketLimiterConst.initTokens)
         ,String.valueOf(TokenBucketLimiterConst.bucketMaxTokens)
         ,String.valueOf(TokenBucketLimiterConst.resetBucketInterval));
-return  execute;
+        return  execute;
 
     }
 
