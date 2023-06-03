@@ -32,7 +32,6 @@ public class LimitFlowFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         String requestURI = httpRequest.getRequestURI();
-        System.out.println(requestURI);
         Object result = redisService.limit_listPush("limit_list");
 
         if(Integer.valueOf(result.toString())<=0){

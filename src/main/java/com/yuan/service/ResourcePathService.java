@@ -16,5 +16,9 @@ import com.yuan.utils.R;
 public interface ResourcePathService extends IService<ResourcePath> {
    R listResourcePath(SearchResourcePathParam resourcePathParam);
 
-    R listResourcePathOnFront(PageParam pageParam);
+    R listResourcePathOnFriendUrl(PageParam pageParam);
+
+    R listAllClassifys();
+
+    R listResourcePathOnFavoritesUrl();
 }

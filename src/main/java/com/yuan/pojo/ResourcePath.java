@@ -38,6 +38,12 @@ public class ResourcePath implements Serializable {
     private String title;
 
     /**
+     * 资源类别
+     */
+    @TableField("classify")
+    private String classify;
+
+    /**
      * 封面
      */
     @TableField("cover")

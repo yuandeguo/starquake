@@ -164,6 +164,7 @@ public class CommonConst {
      * 资源路径
      */
     public static final String RESOURCE_PATH_TYPE_FRIEND = "friendUrl";
+    public static final String RESOURCE_PATH_TYPE_FAVORITES = "favoritesUrl";
 
 
     /**

@@ -83,13 +83,27 @@ public class ResourcePathController {
      * @param pageParam
      * @return
      */
-    @PostMapping("/listResourcePath")
-    public R listResourcePath(@RequestBody PageParam pageParam){
+    @PostMapping("/listResourcePathOnFriendUrl")
+    public R listResourcePathOnFriendUrl(@RequestBody PageParam pageParam){
 
-        return   resourcePathService.listResourcePathOnFront(pageParam);
+        return   resourcePathService.listResourcePathOnFriendUrl(pageParam);
 
 
     }
+    /**
+     * 前端界面显示友情链接
+     * @param pageParam
+     * @return
+     */
+    @GetMapping("/listResourcePathOnFavoritesUrl")
+    public R listResourcePathOnFavoritesUrl(){
+
+        return   resourcePathService.listResourcePathOnFavoritesUrl();
+
+
+    }
+
+
 
     @PostMapping("/saveFriend")
     public R saveFriend(@RequestBody ResourcePath resourcePath, @RequestHeader("Authorization") String authorization) {
@@ -113,7 +127,18 @@ public class ResourcePathController {
         return R.success();
     }
 
+    /**
+     * 获取网站指南的所有类别
+     * @param pageParam
+     * @return
+     */
+    @GetMapping("/listAllClassifys")
+    public R listAllClassifys(){
 
+        return   resourcePathService.listAllClassifys();
+
+
+    }
 
 
 

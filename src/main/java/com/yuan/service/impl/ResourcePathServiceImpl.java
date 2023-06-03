@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapp
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuan.mapper.ResourcePathMapper;
+import com.yuan.myEnum.CommonConst;
 import com.yuan.params.PageParam;
 import com.yuan.params.SearchResourcePathParam;
 import com.yuan.pojo.ResourcePath;
@@ -21,6 +22,8 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author yuanyuan
@@ -32,6 +35,7 @@ import java.util.List;
 public class ResourcePathServiceImpl extends ServiceImpl<ResourcePathMapper, ResourcePath> implements ResourcePathService {
     @Resource
     private RedisService redisService;
+    @Resource ResourcePathMapper resourcePathMapper;
     @Override
     public R listResourcePath(SearchResourcePathParam resourcePathParam) {
         QueryWrapper<ResourcePath> queryWrapper=new QueryWrapper<>();
@@ -51,9 +55,9 @@ public class ResourcePathServiceImpl extends ServiceImpl<ResourcePathMapper, Res
     }
 
     @Override
-    public R listResourcePathOnFront(PageParam pageParam) {
+    public R listResourcePathOnFriendUrl(PageParam pageParam) {
      QueryWrapper<ResourcePath> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("type","friendUrl");
+        queryWrapper.eq("type", CommonConst.RESOURCE_PATH_TYPE_FRIEND);
         queryWrapper.eq("status", Boolean.TRUE);
         IPage<ResourcePath> page=new Page<>(pageParam.getCurrent(),pageParam.getSize());
         List<ResourcePath> records = page.getRecords();
@@ -69,4 +73,25 @@ public class ResourcePathServiceImpl extends ServiceImpl<ResourcePathMapper, Res
         page= baseMapper.selectPage(page, queryWrapper);
         return R.success(page);
     }
+
+    @Override
+    public R listAllClassifys() {
+        List<String> records = resourcePathMapper.listAllClassifys();
+        return R.success(records);
+    }
+
+    @Override
+    public R listResourcePathOnFavoritesUrl() {
+        List<String> allClassifys = resourcePathMapper.listAllClassifys();
+        Map<String, List<ResourcePath>> resultMap = allClassifys.stream()
+                .collect(Collectors.toMap(classify -> classify, classify -> new ArrayList<>()));
+        QueryWrapper<ResourcePath> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("type", CommonConst.RESOURCE_PATH_TYPE_FAVORITES);
+        queryWrapper.eq("status", Boolean.TRUE);
+        List<ResourcePath> resourcePaths = baseMapper.selectList(queryWrapper);
+        resourcePaths.stream().forEach(obj->resultMap.get(obj.getClassify()).add(obj));
+        return R.success(resultMap);
+    }
+
+
 }
