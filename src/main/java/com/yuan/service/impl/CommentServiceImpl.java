@@ -9,6 +9,7 @@ import com.yuan.mapper.CommentMapper;
 import com.yuan.myEnum.CodeMsg;
 import com.yuan.myEnum.CommentTypeEnum;
 import com.yuan.myEnum.CommonConst;
+import com.yuan.myEnum.ParamsEnum;
 import com.yuan.params.SearchCommentParam;
 import com.yuan.pojo.Article;
 import com.yuan.pojo.Comment;
@@ -43,7 +44,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> implements CommentService {
+public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> implements CommentService {
     @Resource
     ArticleService articleService;
     @Resource
@@ -51,24 +52,23 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
 
     @Resource
     private RedisService redisService;
+
     @Override
     public R searchCommentList(SearchCommentParam searchCommentParam, String authorization) {
-        QueryWrapper<Comment> queryWrapper=new QueryWrapper<>();
-        User user=(User)redisService.get(authorization,User.class);
+        QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
+        User user =redisService.get(authorization, User.class);
         //如果不是boss，只能查看自己文章的评论
-        if(user.getUserType()!=0)
-        {
-            QueryWrapper<Article> articleQueryWrapper=new QueryWrapper<>();
+        if (user.getUserType() != ParamsEnum.USER_TYPE_ADMIN.getCode()) {
+            QueryWrapper<Article> articleQueryWrapper = new QueryWrapper<>();
             articleQueryWrapper.select("id");
-            articleQueryWrapper.eq("user_id",user.getId());
-            List<Integer> integers =   articleService.listObjs(articleQueryWrapper).stream().map(i->(Integer)i).collect(Collectors.toList());
-            IPage<Comment> page=new Page<>();
-            if(integers.isEmpty())
-                return R.success( page);
-            queryWrapper.in("source",integers);
+            articleQueryWrapper.eq("user_id", user.getId());
+            List<Integer> integers = articleService.listObjs(articleQueryWrapper).stream().map(i -> (Integer) i).collect(Collectors.toList());
+            IPage<Comment> page = new Page<>();
+            if (integers.isEmpty())
+                return R.success(page);
+            queryWrapper.in("source", integers);
             queryWrapper.eq("type", CommentTypeEnum.COMMENT_TYPE_ARTICLE.getCode());
-        }
-        else {
+        } else {
             if (searchCommentParam.getSource() != null) {
                 queryWrapper.eq("source", searchCommentParam.getSource());
             }
@@ -76,21 +76,22 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
                 queryWrapper.eq("type", searchCommentParam.getCommentType());
             }
         }
-        IPage<Comment> page=new Page<>(searchCommentParam.getCurrent(),searchCommentParam.getSize());
-        page= baseMapper.selectPage(page, queryWrapper);
-         return   R.success( page);
+        IPage<Comment> page = new Page<>(searchCommentParam.getCurrent(), searchCommentParam.getSize());
+        page = baseMapper.selectPage(page, queryWrapper);
+        return R.success(page);
     }
 
     @Override
     public Integer getCommentCount(Integer source, String type) {
         QueryWrapper<Comment> wrapper = new QueryWrapper<>();
-       wrapper.eq("source", source)
+        wrapper.eq("source", source)
                 .eq("type", type);
-    return    baseMapper.selectCount(wrapper);
+        return baseMapper.selectCount(wrapper);
     }
 
     /**
      * 文章主页查询评论信息
+     *
      * @param searchCommentParam
      * @return
      */
@@ -107,57 +108,52 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
                 return R.fail("评论功能已关闭！");
             }
         }
-        IPage<Comment> page=new Page<>(searchCommentParam.getCurrent(),searchCommentParam.getSize());
-        QueryWrapper<Comment> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("source",searchCommentParam.getSource());
-        queryWrapper.eq("type",searchCommentParam.getCommentType());
+        IPage<Comment> page = new Page<>(searchCommentParam.getCurrent(), searchCommentParam.getSize());
+        QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("source", searchCommentParam.getSource());
+        queryWrapper.eq("type", searchCommentParam.getCommentType());
 
         if (searchCommentParam.getFloorCommentId() != null) { //查找子评论
 
-            queryWrapper.eq("floor_comment_id",searchCommentParam.getFloorCommentId());
+            queryWrapper.eq("floor_comment_id", searchCommentParam.getFloorCommentId());
             queryWrapper.orderByAsc("create_time");
             IPage<Comment> iPageChildComments = baseMapper.selectPage(page, queryWrapper);
 
 
-
-
             List<Comment> childComments = iPageChildComments.getRecords();
-            IPage<CommentVo> iPageChildCommentsVo=new Page<>();
+            IPage<CommentVo> iPageChildCommentsVo = new Page<>();
             List<CommentVo> childCommentsVO = childComments.stream().map(cc -> buildCommentVO(cc)).collect(Collectors.toList());
             iPageChildCommentsVo.setRecords(childCommentsVO);
             iPageChildCommentsVo.setTotal(iPageChildComments.getTotal());
 
 
-
             return R.success(iPageChildCommentsVo);
-        }
-        else{
+        } else {
             /**
              * 第一条评论
              */
             queryWrapper.orderByDesc("create_time");
-            queryWrapper.eq("parent_comment_id",0);
+            queryWrapper.eq("parent_comment_id", 0);
             IPage<Comment> iPage = baseMapper.selectPage(page, queryWrapper);
             List<Comment> comments = iPage.getRecords();
             if (CollectionUtils.isEmpty(comments)) {
                 return R.success(null);
             }
 
-            IPage<CommentVo> iPageCommentVo=new Page<>();
-            List<CommentVo> ccVO = comments.stream().map(cc ->buildCommentVO(cc)).collect(Collectors.toList());
+            IPage<CommentVo> iPageCommentVo = new Page<>();
+            List<CommentVo> ccVO = comments.stream().map(cc -> buildCommentVO(cc)).collect(Collectors.toList());
 
-            for(CommentVo item :ccVO)
-            {
-                IPage<Comment> childPage=new Page<>(1,5);
-                QueryWrapper<Comment> queryWrapperChild=new QueryWrapper<>();
-                queryWrapperChild.eq("source",searchCommentParam.getSource());
-                queryWrapperChild.eq("type",searchCommentParam.getCommentType());
-                queryWrapperChild.eq("floor_comment_id",item.getId());
+            for (CommentVo item : ccVO) {
+                IPage<Comment> childPage = new Page<>(1, 5);
+                QueryWrapper<Comment> queryWrapperChild = new QueryWrapper<>();
+                queryWrapperChild.eq("source", searchCommentParam.getSource());
+                queryWrapperChild.eq("type", searchCommentParam.getCommentType());
+                queryWrapperChild.eq("floor_comment_id", item.getId());
                 queryWrapperChild.orderByAsc("create_time");
                 IPage<Comment> iPageChildComments = baseMapper.selectPage(childPage, queryWrapperChild);
 
                 List<Comment> childComments = iPageChildComments.getRecords();
-                IPage<CommentVo> iPageChildCommentsVo=new Page<>();
+                IPage<CommentVo> iPageChildCommentsVo = new Page<>();
                 List<CommentVo> childCommentsVO = childComments.stream().map(cc -> buildCommentVO(cc)).collect(Collectors.toList());
                 iPageChildCommentsVo.setRecords(childCommentsVO);
                 iPageChildCommentsVo.setTotal(iPageChildComments.getTotal());
@@ -173,7 +169,7 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
     @Override
     public R deleteComment(Integer id) {
         boolean b = removeById(id);
-        if(!b) {
+        if (!b) {
             return R.fail("评论删除失败");
         }
         return R.success();
@@ -181,15 +177,14 @@ public class CommentServiceImpl  extends ServiceImpl<CommentMapper, Comment> imp
 
     @Override
     public R saveComment(Comment comment, String authorization) {
-        User user=   (User)redisService.get(authorization,User.class);
-        if(user==null)
-        {
+        User user = redisService.get(authorization, User.class);
+        if (user == null) {
             return R.fail("评论保存失败,请重新登录");
         }
         comment.setUserId(user.getId());
         comment.setCreateTime(LocalDateTime.now());
         boolean save = save(comment);
-        if(!save) {
+        if (!save) {
             return R.fail("评论保存失败");
         }
         return R.success();

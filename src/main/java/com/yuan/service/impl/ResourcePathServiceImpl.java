@@ -35,20 +35,21 @@ import java.util.stream.Collectors;
 public class ResourcePathServiceImpl extends ServiceImpl<ResourcePathMapper, ResourcePath> implements ResourcePathService {
     @Resource
     private RedisService redisService;
-    @Resource ResourcePathMapper resourcePathMapper;
+    @Resource
+    ResourcePathMapper resourcePathMapper;
+
     @Override
     public R listResourcePath(SearchResourcePathParam resourcePathParam) {
-        QueryWrapper<ResourcePath> queryWrapper=new QueryWrapper<>();
-        if(StringUtils.hasText(resourcePathParam.getResourceType()))
-        {
-            queryWrapper.eq("type",resourcePathParam.getResourceType());
+        QueryWrapper<ResourcePath> queryWrapper = new QueryWrapper<>();
+        if (StringUtils.hasText(resourcePathParam.getResourceType())) {
+            queryWrapper.eq("type", resourcePathParam.getResourceType());
         }
-        if(resourcePathParam.getStatus()!=null)
-        { queryWrapper.eq("status",resourcePathParam.getStatus());
+        if (resourcePathParam.getStatus() != null) {
+            queryWrapper.eq("status", resourcePathParam.getStatus());
         }
         queryWrapper.orderByDesc("id");
-        IPage<ResourcePath> page=new Page<>(resourcePathParam.getCurrent(),resourcePathParam.getSize());
-        page= baseMapper.selectPage(page, queryWrapper);
+        IPage<ResourcePath> page = new Page<>(resourcePathParam.getCurrent(), resourcePathParam.getSize());
+        page = baseMapper.selectPage(page, queryWrapper);
         return R.success(page);
 
 
@@ -56,21 +57,19 @@ public class ResourcePathServiceImpl extends ServiceImpl<ResourcePathMapper, Res
 
     @Override
     public R listResourcePathOnFriendUrl(PageParam pageParam) {
-     QueryWrapper<ResourcePath> queryWrapper=new QueryWrapper<>();
+        QueryWrapper<ResourcePath> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("type", CommonConst.RESOURCE_PATH_TYPE_FRIEND);
         queryWrapper.eq("status", Boolean.TRUE);
-        IPage<ResourcePath> page=new Page<>(pageParam.getCurrent(),pageParam.getSize());
+        IPage<ResourcePath> page = new Page<>(pageParam.getCurrent(), pageParam.getSize());
         List<ResourcePath> records = page.getRecords();
 
-        for (ResourcePath item:records)
-        {
-            if(!StringUtils.hasText(item.getCover()))
-            {
+        for (ResourcePath item : records) {
+            if (!StringUtils.hasText(item.getCover())) {
                 item.setCover(DataCacheUtil.getRandomCover());
             }
         }
 
-        page= baseMapper.selectPage(page, queryWrapper);
+        page = baseMapper.selectPage(page, queryWrapper);
         return R.success(page);
     }
 
@@ -85,11 +84,11 @@ public class ResourcePathServiceImpl extends ServiceImpl<ResourcePathMapper, Res
         List<String> allClassifys = resourcePathMapper.listAllClassifys();
         Map<String, List<ResourcePath>> resultMap = allClassifys.stream()
                 .collect(Collectors.toMap(classify -> classify, classify -> new ArrayList<>()));
-        QueryWrapper<ResourcePath> queryWrapper=new QueryWrapper<>();
+        QueryWrapper<ResourcePath> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("type", CommonConst.RESOURCE_PATH_TYPE_FAVORITES);
         queryWrapper.eq("status", Boolean.TRUE);
         List<ResourcePath> resourcePaths = baseMapper.selectList(queryWrapper);
-        resourcePaths.stream().forEach(obj->resultMap.get(obj.getClassify()).add(obj));
+        resourcePaths.stream().forEach(obj -> resultMap.get(obj.getClassify()).add(obj));
         return R.success(resultMap);
     }
 

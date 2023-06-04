@@ -38,10 +38,10 @@ public class TreeHoleServiceImpl extends ServiceImpl<TreeHoleMapper, TreeHole> i
         Integer count = baseMapper.selectCount(null);
         if (count > CommonConst.TREE_HOLE_COUNT) {
             int i = new Random().nextInt(count + 1 - CommonConst.TREE_HOLE_COUNT);
-            QueryWrapper<TreeHole> queryWrapper=new QueryWrapper<>();
-            queryWrapper.last("limit "+String.valueOf(i)+", 200");
-        //    queryWrapper.select("select * from tree_hole as t_table (select id from tree_hole order by id limit)"+String.valueOf(i)+", 200) as temp where temp.id=t_table.id");
-            treeHoles =baseMapper.selectList(queryWrapper);
+            QueryWrapper<TreeHole> queryWrapper = new QueryWrapper<>();
+            queryWrapper.last("limit " + String.valueOf(i) + ", 200");
+            //    queryWrapper.select("select * from tree_hole as t_table (select id from tree_hole order by id limit)"+String.valueOf(i)+", 200) as temp where temp.id=t_table.id");
+            treeHoles = baseMapper.selectList(queryWrapper);
         } else {
             treeHoles = baseMapper.selectList(null);
         }
@@ -58,10 +58,9 @@ public class TreeHoleServiceImpl extends ServiceImpl<TreeHoleMapper, TreeHole> i
 
     @Override
     public R treeHoleListByAdmin(PageParam pageParam) {
-        QueryWrapper<TreeHole> queryWrapper=new QueryWrapper<>();
-
-        IPage<TreeHole> page=new Page<>(pageParam.getCurrent(),pageParam.getSize());
-        page= baseMapper.selectPage(page, queryWrapper);
+        QueryWrapper<TreeHole> queryWrapper = new QueryWrapper<>();
+        IPage<TreeHole> page = new Page<>(pageParam.getCurrent(), pageParam.getSize());
+        page = baseMapper.selectPage(page, queryWrapper);
         return R.success(page);
     }
 }

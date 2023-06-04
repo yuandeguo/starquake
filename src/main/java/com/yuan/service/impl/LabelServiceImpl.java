@@ -31,7 +31,7 @@ public class LabelServiceImpl extends ServiceImpl<LabelMapper, Label> implements
     @Override
     public R deleteLabel(Integer id) {
         boolean b = removeById(id);
-        if(!b) {
+        if (!b) {
             return R.fail("标签删除失败");
         }
         redisService.remove(CommonConst.Label_CACHE + "ById:" + id);
@@ -43,7 +43,7 @@ public class LabelServiceImpl extends ServiceImpl<LabelMapper, Label> implements
     @Override
     public R saveLabel(Label label) {
         boolean b = save(label);
-        if(!b) {
+        if (!b) {
             return R.fail("标签保存失败");
         }
         redisService.remove("listSortAndLabel:getSortInfo");
@@ -55,7 +55,7 @@ public class LabelServiceImpl extends ServiceImpl<LabelMapper, Label> implements
     public R updateLabel(Label label) {
 
         boolean b = updateById(label);
-        if(!b) {
+        if (!b) {
 
             return R.fail("标签修改失败");
         }
@@ -68,10 +68,10 @@ public class LabelServiceImpl extends ServiceImpl<LabelMapper, Label> implements
     @Override
     public Label getById(Serializable id) {
         Label label = redisService.get(CommonConst.Label_CACHE + "ById:" + id, Label.class);
-    if(label==null) {
-        label = super.getById(id);
-        redisService.set(CommonConst.Label_CACHE + "ById:" + id, label,CommonConst.CACHE_EXPIRE);
-    }
+        if (label == null) {
+            label = super.getById(id);
+            redisService.set(CommonConst.Label_CACHE + "ById:" + id, label, CommonConst.CACHE_EXPIRE);
+        }
         return label;
     }
 }

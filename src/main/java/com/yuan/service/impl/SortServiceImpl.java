@@ -35,11 +35,11 @@ public class SortServiceImpl extends ServiceImpl<SortMapper, Sort> implements So
     private RedisService redisService;
     @Resource
     private ArticleService articleService;
+
     @Override
     public R getSortInfo() {
-        List<Sort> list=   redisService.get("listSortAndLabel:getSortInfo",List.class);
-        if(list==null)
-        {
+        List<Sort> list = redisService.get("listSortAndLabel:getSortInfo", List.class);
+        if (list == null) {
             list = baseMapper.selectList(null);
             for (Sort item : list) {
                 QueryWrapper<Label> queryWrapper = new QueryWrapper<>();
@@ -56,31 +56,30 @@ public class SortServiceImpl extends ServiceImpl<SortMapper, Sort> implements So
                 SortArticleCount.eq("sort_id", item.getId());
                 item.setCountOfSort(articleService.count(SortArticleCount));
             }
-            redisService.set("listSortAndLabel:getSortInfo", list,CommonConst.CACHE_EXPIRE);
+            redisService.set("listSortAndLabel:getSortInfo", list, CommonConst.CACHE_EXPIRE);
         }
         return R.success(list);
     }
 
     @Override
     public R listSortAndLabel() {
-        Map<String, List> map=   redisService.get("listSortAndLabel:list",Map.class);
-        if(map==null)
-        {
+        Map<String, List> map = redisService.get("listSortAndLabel:list", Map.class);
+        if (map == null) {
             List<Sort> sortList = baseMapper.selectList(null);
             List<Label> labelList = labelService.list();
-           map = new HashMap<>();
+            map = new HashMap<>();
             map.put("sorts", sortList);
             map.put("labels", labelList);
-            redisService.set("listSortAndLabel:list", map,CommonConst.CACHE_EXPIRE);
+            redisService.set("listSortAndLabel:list", map, CommonConst.CACHE_EXPIRE);
         }
 
-        return R.success(map)  ;
+        return R.success(map);
     }
 
     @Override
     public R deleteSort(Integer id) {
         boolean b = removeById(id);
-        if(!b) {
+        if (!b) {
             return R.fail("分类删除失败");
         }
         redisService.remove(CommonConst.SORT_CACHE + "ById:" + id);
@@ -92,7 +91,7 @@ public class SortServiceImpl extends ServiceImpl<SortMapper, Sort> implements So
     @Override
     public R saveSort(Sort sort) {
         boolean b = save(sort);
-        if(!b) {
+        if (!b) {
             return R.fail("分类保存失败");
         }
         redisService.remove("listSortAndLabel:getSortInfo");
@@ -103,7 +102,7 @@ public class SortServiceImpl extends ServiceImpl<SortMapper, Sort> implements So
     @Override
     public R updateSort(Sort sort) {
         boolean b = updateById(sort);
-        if(!b) {
+        if (!b) {
             return R.fail("分类修改失败");
         }
         redisService.remove(CommonConst.SORT_CACHE + "ById:" + sort.getId());
@@ -115,9 +114,9 @@ public class SortServiceImpl extends ServiceImpl<SortMapper, Sort> implements So
     @Override
     public Sort getById(Serializable id) {
         Sort sort = redisService.get(CommonConst.SORT_CACHE + "ById:" + id, Sort.class);
-        if(sort==null) {
+        if (sort == null) {
             sort = super.getById(id);
-            redisService.set(CommonConst.SORT_CACHE + "ById:" + id, sort,CommonConst.CACHE_EXPIRE);
+            redisService.set(CommonConst.SORT_CACHE + "ById:" + id, sort, CommonConst.CACHE_EXPIRE);
         }
         return sort;
     }

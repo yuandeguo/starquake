@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
-import org.tio.core.Tio;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
@@ -49,11 +48,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private MailUtil mailUtil;
+
     @Override
     public R<UserVO> login(LoginParam loginParam) {
-        String username=loginParam.getUsername();
-        String password=loginParam.getPassword();
-        Boolean isAdmin=loginParam.getIsAdmin();
+        String username = loginParam.getUsername();
+        String password = loginParam.getPassword();
+        Boolean isAdmin = loginParam.getIsAdmin();
         password = new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(password));//解密处理
         User user = lambdaQuery().and(wrapper -> wrapper
                         .eq(User::getUsername, username)
@@ -66,31 +66,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             return R.fail("账号/密码错误，请重新输入！");
         }
-
         if (!user.getUserStatus()) {
             return R.fail("账号被冻结！请联系站长");
         }
-
         String adminToken = "";
         String userToken = "";
-
         if (isAdmin) {
             //不等于站长或者是管理员
-            if (user.getUserType() != ParamsEnum.USER_TYPE_ADMIN.getCode() && user.getUserType() != ParamsEnum.USER_TYPE_DEV.getCode()) {
+            if (user.getUserType() != ParamsEnum.USER_TYPE_ADMIN.getCode() && user.getUserType() != ParamsEnum.USER_TYPE_MANAGER.getCode()) {
                 return R.fail("请输入管理员账号！");
             }
             //判断缓存中是否存在用户id
-            if (redisService.get(CommonConst.ADMIN_TOKEN + user.getId(),String.class) != null) {
-                adminToken =  redisService.get(CommonConst.ADMIN_TOKEN + user.getId(),String.class);
+            if (redisService.get(CommonConst.ADMIN_TOKEN + user.getId(), String.class) != null) {
+                adminToken = redisService.get(CommonConst.ADMIN_TOKEN + user.getId(), String.class);
             }
-        }
-        else { //普通用户登录
+        } else { //普通用户登录
             if (DataCacheUtil.get(CommonConst.USER_TOKEN + user.getId()) != null) {
-                userToken = (String) redisService.get(CommonConst.USER_TOKEN + user.getId(),String.class);
+                userToken = (String) redisService.get(CommonConst.USER_TOKEN + user.getId(), String.class);
             }
         }
-
-
         if (isAdmin && !StringUtils.hasText(adminToken)) {
             String uuid = UUID.randomUUID().toString().replaceAll("-", "");
             adminToken = CommonConst.ADMIN_ACCESS_TOKEN + uuid;
@@ -128,12 +122,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public R exitLogin(String authorization) {
-        User user =redisService.get(authorization, User.class);
-
-        if(user==null)
+        User user = redisService.get(authorization, User.class);
+        if (user == null)
             return R.success();
-       Integer  userId=user.getId();
-            //删除USER_TOKEN+id
+        Integer userId = user.getId();
+        //删除USER_TOKEN+id
         if (authorization.contains(CommonConst.USER_ACCESS_TOKEN)) {
             redisService.remove(CommonConst.USER_TOKEN + userId);
         } else if (authorization.contains(CommonConst.ADMIN_ACCESS_TOKEN)) {
@@ -151,7 +144,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public IPage<User> userList(SearchUserParam searchUserParam) {
-        QueryWrapper<User> queryWrapper=new QueryWrapper<>();
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if (searchUserParam.getUserStatus() != null) {
             queryWrapper.eq("user_status", searchUserParam.getUserStatus());
         }
@@ -165,8 +158,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     .eq("phone_number", searchUserParam.getSearchKey()));
         }
 
-        IPage<User> page=new Page<>(searchUserParam.getCurrent(),searchUserParam.getSize());
-        page= baseMapper.selectPage(page, queryWrapper);
+        IPage<User> page = new Page<>(searchUserParam.getCurrent(), searchUserParam.getSize());
+        page = baseMapper.selectPage(page, queryWrapper);
         List<User> records = page.getRecords();
         if (!CollectionUtils.isEmpty(records)) {
             records.forEach(u -> {
@@ -186,7 +179,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public R emailForBind(String place, Integer flag,String authorization) {
+    public R emailForBind(String place, Integer flag, String authorization) {
         int code = new Random().nextInt(900000) + 100000;
         if (flag == 1) {
 
@@ -199,19 +192,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             WebInfo webInfo = (WebInfo) DataCacheUtil.get(CommonConst.WEB_INFO);
             mailUtil.sendMailMessage(mail, "您有一封来自" + (webInfo == null ? "yuan010" : webInfo.getWebName()) + "的回执！", text);
         }
-        Integer userId=(redisService.get(authorization,User.class)).getId();
+        Integer userId = (redisService.get(authorization, User.class)).getId();
         redisService.set(CommonConst.USER_CODE + userId + "_" + place + "_" + flag, Integer.valueOf(code), 300);
         return R.success();
     }
 
     @Override
     public R updateSecretInfo(UserUpdateSecretInfoParam userUpdateSecretInfoParam, String authorization) {
-      String  password = new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(userUpdateSecretInfoParam.getPassword()));
+        String password = new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(userUpdateSecretInfoParam.getPassword()));
         Integer flag = userUpdateSecretInfoParam.getFlag();
         String place = userUpdateSecretInfoParam.getPlace();
         String code = userUpdateSecretInfoParam.getCode();
 
-        User user=redisService.get(authorization,User.class);
+        User user = redisService.get(authorization, User.class);
         redisService.remove(CommonConst.USER_CACHE + user.getId().toString());
 
         if ((flag == 1 || flag == 2) && !DigestUtils.md5DigestAsHex(password.getBytes()).equals(user.getPassword())) {
@@ -226,7 +219,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (count != 0) {
                 return R.fail("邮箱重复！");
             }
-            Integer codeCache =redisService.get(CommonConst.USER_CODE + user.getId() + "_" + place + "_" + flag,Integer.class);
+            Integer codeCache = redisService.get(CommonConst.USER_CODE + user.getId() + "_" + place + "_" + flag, Integer.class);
             if (codeCache != null && codeCache.intValue() == Integer.parseInt(code)) {
 
                 redisService.remove(CommonConst.USER_CODE + user.getId() + "_" + place + "_" + flag);
@@ -237,7 +230,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         }
         updateById(user);
-        String Token=  redisService.get(CommonConst.USER_TOKEN+user.getId(),String.class);
+        String Token = redisService.get(CommonConst.USER_TOKEN + user.getId(), String.class);
         redisService.set(Token, user, CommonConst.TOKEN_EXPIRE);
         redisService.set(CommonConst.USER_TOKEN + user.getId(), Token, CommonConst.TOKEN_EXPIRE);
         UserVO userVO = new UserVO();
@@ -253,8 +246,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (flag == 1) {
 
         } else if (flag == 2) {
-
-
             List<String> mail = new ArrayList<>();
             mail.add(place);
             String text = getCodeMail(i);
@@ -268,19 +259,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public R updateForForgetPassword(ForForgetPasswordParam forForgetPasswordParam) {
-
-      String  password = new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(forForgetPasswordParam.getPassword()));
+        String password = new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(forForgetPasswordParam.getPassword()));
         Integer flag = forForgetPasswordParam.getFlag();
         String code = forForgetPasswordParam.getCode();
         String place = forForgetPasswordParam.getPlace();
-        Integer codeCache =  redisService.get(CommonConst.FORGET_PASSWORD + place + "_" + flag,Integer.class);
+        Integer codeCache = redisService.get(CommonConst.FORGET_PASSWORD + place + "_" + flag, Integer.class);
         if (codeCache == null || codeCache != Integer.parseInt(code)) {
             return R.fail("验证码错误！");
         }
-
         redisService.remove(CommonConst.FORGET_PASSWORD + place + "_" + flag);
-
-      if (flag == 2) {
+        if (flag == 2) {
             User user = lambdaQuery().eq(User::getEmail, place).one();
             if (user == null) {
                 return R.fail("该邮箱未绑定账号！");
@@ -293,7 +281,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             redisService.remove(CommonConst.USER_CACHE + user.getId().toString());
         }
         return R.success();
-
 
 
     }
@@ -316,7 +303,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         if (StringUtils.hasText(user.getEmail())) {
-            Integer codeCache =  redisService.get(CommonConst.FORGET_PASSWORD + user.getEmail() + "_2",Integer.class);
+            Integer codeCache = redisService.get(CommonConst.FORGET_PASSWORD + user.getEmail() + "_2", Integer.class);
             if (codeCache == null || codeCache != Integer.parseInt(user.getCode())) {
                 return R.fail("验证码错误！");
             }
@@ -332,7 +319,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (count != 0) {
             return R.fail("用户名重复！");
         }
-    if (StringUtils.hasText(user.getEmail())) {
+        if (StringUtils.hasText(user.getEmail())) {
             Integer emailCount = lambdaQuery().eq(User::getEmail, user.getEmail()).count();
             if (emailCount != 0) {
                 return R.fail("邮箱重复！");
@@ -348,25 +335,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             u.setAvatar(DataCacheUtil.getRandomAvatar());
         }
         save(u);
-
         User one = lambdaQuery().eq(User::getId, u.getId()).one();
-
         String userToken = CommonConst.USER_ACCESS_TOKEN + UUID.randomUUID().toString().replaceAll("-", "");
         redisService.set(userToken, one, CommonConst.TOKEN_EXPIRE);
         redisService.set(CommonConst.USER_TOKEN + one.getId(), userToken, CommonConst.TOKEN_EXPIRE);
-
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(one, userVO);
         userVO.setPassword(null);
         userVO.setAccessToken(userToken);
-
-
         return R.success(userVO);
     }
 
     @Override
     public R updateUserInfo(User user, String authorization) {
-        Integer userId=(redisService.get(authorization,User.class)).getId();
+        Integer userId = (redisService.get(authorization, User.class)).getId();
         if (StringUtils.hasText(user.getUsername())) {
             String regex = "\\d{11}";
             if (user.getUsername().matches(regex)) {
@@ -376,7 +358,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (user.getUsername().contains("@")) {
                 return R.fail("用户名不能包含@！");
             }
-            Integer count = lambdaQuery().eq(User::getUsername, user.getUsername()).ne(User::getId,userId).count();
+            Integer count = lambdaQuery().eq(User::getUsername, user.getUsername()).ne(User::getId, userId).count();
             if (count != 0) {
                 return R.fail("用户名重复！");
             }
@@ -400,29 +382,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public R changeUserStatusOrTypeParam(UserStatusOrTypeParam userStatusOrTypeParam) {
-        User user=new User();
+        User user = new User();
         user.setId(userStatusOrTypeParam.getUserId());
         user.setUserStatus(userStatusOrTypeParam.getUserStatus());
         user.setUserType(userStatusOrTypeParam.getUserType());
         boolean b = updateById(user);
         //   该用户退出登录
-        if(!b)
-        {
+        if (!b) {
             return R.fail("修改失败");
         }
-        if(userStatusOrTypeParam.getUserStatus()!=null&&!userStatusOrTypeParam.getUserStatus())
-        {
+        if (userStatusOrTypeParam.getUserStatus() != null && !userStatusOrTypeParam.getUserStatus()) {
 
             //管理员
-            if(redisService.get(CommonConst.ADMIN_TOKEN + user.getId(),String.class) != null)
-            {
-                String token = redisService.get(CommonConst.ADMIN_TOKEN + user.getId(),String.class);
+            if (redisService.get(CommonConst.ADMIN_TOKEN + user.getId(), String.class) != null) {
+                String token = redisService.get(CommonConst.ADMIN_TOKEN + user.getId(), String.class);
                 redisService.remove(CommonConst.ADMIN_TOKEN + user.getId());
-                redisService .remove(token);
+                redisService.remove(token);
             }//普通用户
-            else if (redisService.get(CommonConst.USER_TOKEN + user.getId(),String.class) != null)
-            {
-                String token = (String) redisService.get(CommonConst.USER_TOKEN + user.getId(),String.class);
+            else if (redisService.get(CommonConst.USER_TOKEN + user.getId(), String.class) != null) {
+                String token = (String) redisService.get(CommonConst.USER_TOKEN + user.getId(), String.class);
                 redisService.remove(CommonConst.USER_TOKEN + user.getId());
                 redisService.remove(token);
             }
@@ -433,6 +411,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 设置邮件内容
+     *
      * @param code
      * @return
      */

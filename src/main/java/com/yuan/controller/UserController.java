@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+
 /**
  * @author yuanyuan
  * @version V1.0
@@ -28,13 +29,13 @@ public class UserController {
      * 用户名、邮箱、手机号/密码登录
      */
     @PostMapping("/login")
-    public R login(@RequestBody @Validated LoginParam loginParam,BindingResult bindingResult) {
-        if(bindingResult.hasErrors())
-        {
+    public R login(@RequestBody @Validated LoginParam loginParam, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
             R.fail("账号/密码不能为空，请重新输入！");
         }
         return userService.login(loginParam);
     }
+
     /**
      * 退出登录
      */
@@ -45,12 +46,13 @@ public class UserController {
 
     /**
      * 按条件查询用户
+     *
      * @param searchUserParam
      * @return
      */
     @PostMapping("/admin/list")
     public R listUser(@RequestBody SearchUserParam searchUserParam) {
-      return R.success( userService.userList(searchUserParam));
+        return R.success(userService.userList(searchUserParam));
     }
 
     /**
@@ -71,20 +73,22 @@ public class UserController {
      * @return
      */
     @PostMapping("/updateUserInfo")
-    public R updateUserInfo(@RequestBody User user,@RequestHeader("Authorization") String authorization) {
-return userService.updateUserInfo(user,authorization);
+    public R updateUserInfo(@RequestBody User user, @RequestHeader("Authorization") String authorization) {
+        return userService.updateUserInfo(user, authorization);
     }
 
     /**
      * 邮箱绑定或者修改
+     *
      * @param place
      * @param flag
      * @return
      */
     @GetMapping("/getCodeForBind")
-    public R getCodeForBind(@RequestParam("place") String place, @RequestParam("flag") Integer flag,@RequestHeader("Authorization") String authorization) {
-        return userService.emailForBind(place, flag,authorization);
+    public R getCodeForBind(@RequestParam("place") String place, @RequestParam("flag") Integer flag, @RequestHeader("Authorization") String authorization) {
+        return userService.emailForBind(place, flag, authorization);
     }
+
     /**
      * 更新邮箱、手机号
      * <p>
@@ -93,19 +97,20 @@ return userService.updateUserInfo(user,authorization);
      * 3 密码：place=老密码&password=新密码
      */
     @PostMapping("/updateSecretInfo")
-    public R updateSecretInfo(@RequestBody UserUpdateSecretInfoParam userUpdateSecretInfoParam,@RequestHeader("Authorization") String authorization) {
+    public R updateSecretInfo(@RequestBody UserUpdateSecretInfoParam userUpdateSecretInfoParam, @RequestHeader("Authorization") String authorization) {
 
-        return userService.updateSecretInfo(userUpdateSecretInfoParam,authorization);
+        return userService.updateSecretInfo(userUpdateSecretInfoParam, authorization);
     }
+
     /**
      * 注册或者忘记密码获取邮箱验证码
+     *
      * @param place
      * @param flag
      * @return
      */
     @GetMapping("/getCodeForForgetPasswordOrRegister")
     public R getCodeForForgetPasswordOrRegister(@RequestParam("place") String place, @RequestParam("flag") Integer flag) {
-
         return userService.getCodeForForgetPasswordOrRegister(place, flag);
     }
 
@@ -117,7 +122,6 @@ return userService.updateUserInfo(user,authorization);
      */
     @PostMapping("/updateForForgetPassword")
     public R updateForForgetPassword(@RequestBody ForForgetPasswordParam forForgetPasswordParam) {
-
         return userService.updateForForgetPassword(forForgetPasswordParam);
     }
 
@@ -128,7 +132,6 @@ return userService.updateUserInfo(user,authorization);
     public R register(@Validated @RequestBody UserRegisterParam userRegisterParam) {
         return userService.register(userRegisterParam);
     }
-
 
 
 }

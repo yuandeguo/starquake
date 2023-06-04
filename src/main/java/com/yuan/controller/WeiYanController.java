@@ -5,6 +5,7 @@ import com.yuan.pojo.WeiYan;
 import com.yuan.service.WeiYanService;
 import com.yuan.utils.R;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 
 /**
@@ -24,9 +25,9 @@ public class WeiYanController {
      * 保存
      */
     @PostMapping("/saveWeiYan")
-    public R saveWeiYan(@RequestBody WeiYan weiYanVO,@RequestHeader("Authorization") String authorization) {
+    public R saveWeiYan(@RequestBody WeiYan weiYanVO, @RequestHeader("Authorization") String authorization) {
 
-        return weiYanService.saveWeiYan(weiYanVO,authorization);
+        return weiYanService.saveWeiYan(weiYanVO, authorization);
 
     }
 
@@ -34,17 +35,18 @@ public class WeiYanController {
      * 删除
      */
     @GetMapping("/deleteWeiYan")
-    public R deleteWeiYan(@RequestParam("id") Integer id,@RequestHeader("Authorization") String authorization) {
-        return weiYanService.deleteWeiYan(id,authorization);
+    public R deleteWeiYan(@RequestParam("id") Integer id, @RequestHeader("Authorization") String authorization) {
+        return weiYanService.deleteWeiYan(id, authorization);
 
 
     }
+
     /**
      * 查询List
      */
     @PostMapping("/listWeiYan")
     public R listWeiYan(@RequestBody PageParam pageParam) {
-        return  weiYanService.listWeiYan(pageParam);
+        return weiYanService.listWeiYan(pageParam);
 
     }
 }

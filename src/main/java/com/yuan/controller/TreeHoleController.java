@@ -1,4 +1,5 @@
 package com.yuan.controller;
+
 import com.yuan.annotations.OperationLogAnnotation;
 import com.yuan.params.PageParam;
 import com.yuan.pojo.TreeHole;
@@ -7,6 +8,7 @@ import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 
@@ -26,14 +28,14 @@ public class TreeHoleController {
     @PostMapping("/admin/treeHoleList")
     public R listBossTreeHole(@RequestBody PageParam pageParam) {
 
-  return treeHoleService.treeHoleListByAdmin(pageParam);
+        return treeHoleService.treeHoleListByAdmin(pageParam);
     }
 
     @GetMapping("/admin/deleteTreeHole")
-    public R deleteTreeHole(@RequestParam("id")Integer id) {
+    public R deleteTreeHole(@RequestParam("id") Integer id) {
 
         boolean b = treeHoleService.removeById(id);
-        if(!b) {
+        if (!b) {
             return R.fail("弹幕删除失败");
         }
         return R.success();
@@ -47,10 +49,11 @@ public class TreeHoleController {
 
         return treeHoleService.listTreeHole();
     }
+
     /**
      * 保存
      */
-    @OperationLogAnnotation(operModul = "saveTreeHole",operType = "保存",operDesc = "保存留言")
+    @OperationLogAnnotation(operModul = "saveTreeHole", operType = "保存", operDesc = "保存留言")
     @PostMapping("/saveTreeHole")
     public R saveTreeHole(@RequestBody TreeHole treeHole) {
         if (!StringUtils.hasText(treeHole.getMessage())) {
@@ -62,14 +65,12 @@ public class TreeHoleController {
             treeHole.setAvatar(DataCacheUtil.getRandomAvatar());
         }
         boolean save = treeHoleService.save(treeHole);
-        if(!save) {
+        if (!save) {
             return R.fail("弹幕保存失败");
         }
         return R.success(treeHole);
 
     }
-
-
 
 
 }

@@ -23,27 +23,23 @@ public class LabelController {
     private LabelService labelService;
 
     @GetMapping("/admin/deleteLabel")
-    public R deleteLabel(@RequestParam("id") Integer id)
-    {
+    public R deleteLabel(@RequestParam("id") Integer id) {
 
-       return labelService.deleteLabel(id);
+        return labelService.deleteLabel(id);
 
     }
 
     @PostMapping("/admin/saveLabel")
-    public R saveLabel(@RequestBody Label label)
-    {
+    public R saveLabel(@RequestBody Label label) {
         return labelService.saveLabel(label);
 
     }
+
     @PostMapping("/admin/updateLabel")
-    public R updateLabel(@RequestBody Label label)
-    {
-      return  labelService.updateLabel(label);
+    public R updateLabel(@RequestBody Label label) {
+        return labelService.updateLabel(label);
 
     }
-
-
 
 
 }

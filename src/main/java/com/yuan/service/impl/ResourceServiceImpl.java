@@ -27,17 +27,17 @@ import org.springframework.util.StringUtils;
 public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
     @javax.annotation.Resource
     private RedisService redisService;
+
     @Override
     public R listResource(SearchResourceParam searchResourceParam) {
-        QueryWrapper<Resource> queryWrapper=new QueryWrapper<>();
-        if(StringUtils.hasText(searchResourceParam.getResourceType()))
-        {
-            queryWrapper.eq("type",searchResourceParam.getResourceType());
+        QueryWrapper<Resource> queryWrapper = new QueryWrapper<>();
+        if (StringUtils.hasText(searchResourceParam.getResourceType())) {
+            queryWrapper.eq("type", searchResourceParam.getResourceType());
         }
         queryWrapper.orderByDesc("id");
-        IPage<Resource> page=new Page<>(searchResourceParam.getCurrent(),searchResourceParam.getSize());
-        page= baseMapper.selectPage(page, queryWrapper);
-         return R.success(page);
+        IPage<Resource> page = new Page<>(searchResourceParam.getCurrent(), searchResourceParam.getSize());
+        page = baseMapper.selectPage(page, queryWrapper);
+        return R.success(page);
 
     }
 
@@ -51,8 +51,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         re.setType(resource.getType());
         re.setSize(resource.getSize());
         re.setMimeType(resource.getMimeType());
-        re.setUserId(( redisService.get(authorization,User.class)).getId());
-        re.setCreateTime( LocalDateTimeUtil.now());
+        re.setUserId((redisService.get(authorization, User.class)).getId());
+        re.setCreateTime(LocalDateTimeUtil.now());
         save(re);
         return R.success();
     }

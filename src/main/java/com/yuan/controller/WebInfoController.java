@@ -29,20 +29,21 @@ public class WebInfoController {
      */
     @PostMapping("/admin/updateWebInfo")
     public R updateWebInfo(@RequestBody WebInfo webInfo) {
-      return   webInfoService.updateWebInfo(webInfo);
+        return webInfoService.updateWebInfo(webInfo);
 
     }
+
     /**
      * 这是管理员获取 网站信息
      */
     @GetMapping("/admin/getWebInfo")
     public R getWebInfo() {
         Object o = DataCacheUtil.get(CommonConst.WEB_INFO);
-        if(o!=null)
+        if (o != null)
             return R.success(o);
 
 
-        return  webInfoService.getWebInfo();
+        return webInfoService.getWebInfo();
 
     }
 
@@ -51,7 +52,7 @@ public class WebInfoController {
      */
     @GetMapping("/getWebInfo")
     public R getWebInfo0() {
-      return  webInfoService.getWebInfo();
+        return webInfoService.getWebInfo();
     }
 
 }

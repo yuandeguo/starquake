@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuan.mapper.WeiYanMapper;
 import com.yuan.myEnum.CommonConst;
+import com.yuan.myEnum.ParamsEnum;
 import com.yuan.params.PageParam;
 import com.yuan.pojo.User;
 import com.yuan.pojo.WeiYan;
@@ -31,29 +32,30 @@ import java.time.LocalDateTime;
 public class WeiYanServiceImpl extends ServiceImpl<WeiYanMapper, WeiYan> implements WeiYanService {
     @Resource
     private RedisService redisService;
+
     @Override
     public R listWeiYan(PageParam pageParam) {
-        Page<WeiYan> res=redisService.get("listWeiYan:"+pageParam.getCurrent()+':'+pageParam.getSize(), Page.class);
-        if(res==null)
-        {
+        Page<WeiYan> res = redisService.get("listWeiYan:" + pageParam.getCurrent() + ':' + pageParam.getSize(), Page.class);
+        if (res == null) {
 
-           res = new Page<>(pageParam.getCurrent(), pageParam.getSize());
+            res = new Page<>(pageParam.getCurrent(), pageParam.getSize());
             QueryWrapper<WeiYan> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("is_public", Boolean.TRUE);
             queryWrapper.orderByDesc("create_time");
             res = baseMapper.selectPage(res, queryWrapper);
-            redisService.set("listWeiYan:"+pageParam.getCurrent()+':'+pageParam.getSize(),res,CommonConst.CACHE_EXPIRE);
-            log.info("***WeiYanServiceImpl.listWeiYan业务结束，结果:{}",res );;
+            redisService.set("listWeiYan:" + pageParam.getCurrent() + ':' + pageParam.getSize(), res, CommonConst.CACHE_EXPIRE);
+            log.info("***WeiYanServiceImpl.listWeiYan业务结束，结果:{}", res);
+            ;
         }
         return R.success(res);
     }
 
     @Override
     public R saveWeiYan(WeiYan weiYanVO, String authorization) {
-        User user=  redisService.get(authorization, User.class);
+        User user = redisService.get(authorization, User.class);
         assert user != null;
-        if(user.getUserType()!=0)
-            return R.fail("错误，不是管理员");
+        if (user.getUserType() != ParamsEnum.USER_TYPE_ADMIN.getCode())
+            return R.fail("错误，站长");
 
         if (!StringUtils.hasText(weiYanVO.getContent())) {
             return R.fail("微言不能为空！");
@@ -71,15 +73,12 @@ public class WeiYanServiceImpl extends ServiceImpl<WeiYanMapper, WeiYan> impleme
 
     @Override
     public R deleteWeiYan(Integer id, String authorization) {
-
-        User user= redisService.get(authorization,User.class);
-
+        User user = redisService.get(authorization, User.class);
         assert user != null;
-        if(user.getUserType()!=0)
+        if (user.getUserType() != ParamsEnum.USER_TYPE_ADMIN.getCode())
             return R.fail("错误，不是管理员");
         Integer userId = user.getId();
-
-            lambdaUpdate().eq(WeiYan::getId, id)
+        lambdaUpdate().eq(WeiYan::getId, id)
                 .eq(WeiYan::getUserId, userId)
                 .remove();
         redisService.removeList("listWeiYan:*");

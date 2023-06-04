@@ -28,24 +28,26 @@ public class ResourcePathController {
     private ResourcePathService resourcePathService;
     @Resource
     private RedisService redisService;
+
     @PostMapping("/admin/listResourcePath")
-    public R listResourcePath(@RequestBody SearchResourcePathParam resourcePathParam){
-        return  resourcePathService.listResourcePath(resourcePathParam);
+    public R listResourcePath(@RequestBody SearchResourcePathParam resourcePathParam) {
+        return resourcePathService.listResourcePath(resourcePathParam);
 
     }
 
     /**
      * 更新状态
+     *
      * @param resource
      * @return
      */
     @PostMapping("/admin/updateResourcePath")
-    public R updateResourcePath(@RequestBody ResourcePath resource){
+    public R updateResourcePath(@RequestBody ResourcePath resource) {
         System.out.println(resource);
 
         boolean b = resourcePathService.updateById(resource);
 
-        if(!b) {
+        if (!b) {
             return R.fail("资源路径修改状态失败");
         }
         return R.success();
@@ -53,26 +55,27 @@ public class ResourcePathController {
 
     /**
      * 删除
+     *
      * @param id
      * @return
      */
     @GetMapping("/admin/deleteResourcePath")
-    public R deleteResourcePath(@RequestParam ("id") Integer id){
+    public R deleteResourcePath(@RequestParam("id") Integer id) {
 
 
         boolean b = resourcePathService.removeById(id);
 
-        if(!b) {
+        if (!b) {
             return R.fail("资源路径删除失败");
         }
         return R.success();
     }
 
     @PostMapping("/admin/saveResourcePath")
-    public R saveResourcePath(@RequestBody ResourcePath resource){
+    public R saveResourcePath(@RequestBody ResourcePath resource) {
         resource.setCreateTime(LocalDateTime.now());
         boolean b = resourcePathService.save(resource);
-        if(!b) {
+        if (!b) {
             return R.fail("资源路径保存失败");
         }
         return R.success();
@@ -80,36 +83,37 @@ public class ResourcePathController {
 
     /**
      * 前端界面显示友情链接
+     *
      * @param pageParam
      * @return
      */
     @PostMapping("/listResourcePathOnFriendUrl")
-    public R listResourcePathOnFriendUrl(@RequestBody PageParam pageParam){
+    public R listResourcePathOnFriendUrl(@RequestBody PageParam pageParam) {
 
-        return   resourcePathService.listResourcePathOnFriendUrl(pageParam);
+        return resourcePathService.listResourcePathOnFriendUrl(pageParam);
 
 
     }
+
     /**
      * 前端界面显示友情链接
-     * @param pageParam
+     *
      * @return
      */
     @GetMapping("/listResourcePathOnFavoritesUrl")
-    public R listResourcePathOnFavoritesUrl(){
+    public R listResourcePathOnFavoritesUrl() {
 
-        return   resourcePathService.listResourcePathOnFavoritesUrl();
+        return resourcePathService.listResourcePathOnFavoritesUrl();
 
 
     }
-
 
 
     @PostMapping("/saveFriend")
     public R saveFriend(@RequestBody ResourcePath resourcePath, @RequestHeader("Authorization") String authorization) {
-      User user= redisService.get(authorization, User.class);
-      if(!StringUtils.hasText(user.getEmail()))
-          return R.fail("请绑定邮箱");
+        User user = redisService.get(authorization, User.class);
+        if (!StringUtils.hasText(user.getEmail()))
+            return R.fail("请绑定邮箱");
 
 
         if (!StringUtils.hasText(resourcePath.getTitle()) || !StringUtils.hasText(resourcePath.getCover()) ||
@@ -129,18 +133,16 @@ public class ResourcePathController {
 
     /**
      * 获取网站指南的所有类别
-     * @param pageParam
+     *
      * @return
      */
     @GetMapping("/listAllClassifys")
-    public R listAllClassifys(){
+    public R listAllClassifys() {
 
-        return   resourcePathService.listAllClassifys();
+        return resourcePathService.listAllClassifys();
 
 
     }
-
-
 
 
 }

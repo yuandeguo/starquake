@@ -38,7 +38,7 @@ public enum ParamsEnum {
      * 用户类型
      */
     USER_TYPE_ADMIN(0, "站长"),
-    USER_TYPE_DEV(1, "管理员"),
+    USER_TYPE_MANAGER(1, "管理员"),
     USER_TYPE_USER(2, "用户");
 
 

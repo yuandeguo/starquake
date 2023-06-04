@@ -1,4 +1,5 @@
 package com.yuan.controller;
+
 import com.yuan.annotations.OperationLogAnnotation;
 import com.yuan.params.SearchCommentParam;
 import com.yuan.pojo.Comment;
@@ -7,6 +8,7 @@ import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 
 /**
@@ -23,15 +25,14 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping("/admin/commentList")
-    public R commentList(@RequestBody SearchCommentParam searchCommentParam,@RequestHeader("Authorization") String authorization)
-    {
-        return commentService.searchCommentList(searchCommentParam,authorization);
+    public R commentList(@RequestBody SearchCommentParam searchCommentParam, @RequestHeader("Authorization") String authorization) {
+        return commentService.searchCommentList(searchCommentParam, authorization);
 
     }
-    @OperationLogAnnotation(operModul = "deleteComment",operType = "删除",operDesc = "deleteComment")
+
+    @OperationLogAnnotation(operModul = "deleteComment", operType = "删除", operDesc = "deleteComment")
     @GetMapping("/admin/deleteComment")
-    public R deleteComment(@RequestParam("id") Integer id)
-    {
+    public R deleteComment(@RequestParam("id") Integer id) {
         return commentService.deleteComment(id);
 
     }
@@ -41,7 +42,7 @@ public class CommentController {
      */
     @GetMapping("/getCommentCount")
     public R getCommentCount(@RequestParam("source") Integer source, @RequestParam("type") String type) {
-      Integer count=  commentService.getCommentCount(source,type);
+        Integer count = commentService.getCommentCount(source, type);
         return R.success(count);
     }
 
@@ -55,17 +56,17 @@ public class CommentController {
 
 
     }
-/**
- * 保存评论
- */ @OperationLogAnnotation(operModul = "saveComment",operType = "保存",operDesc = "saveComment")
-    @PostMapping("/saveComment")
-    public R saveComment(@Validated @RequestBody Comment comment,@RequestHeader("Authorization") String authorization) {
 
-        return commentService.saveComment(comment,authorization);
+    /**
+     * 保存评论
+     */
+    @OperationLogAnnotation(operModul = "saveComment", operType = "保存", operDesc = "saveComment")
+    @PostMapping("/saveComment")
+    public R saveComment(@Validated @RequestBody Comment comment, @RequestHeader("Authorization") String authorization) {
+
+        return commentService.saveComment(comment, authorization);
 
     }
-
-
 
 
 }

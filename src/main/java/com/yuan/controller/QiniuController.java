@@ -21,20 +21,18 @@ import javax.annotation.Resource;
 public class QiniuController {
     @Resource
     private RedisService redisService;
+
     /**
      * 获取覆盖凭证
      */
     @GetMapping("/getUpToken")
     public R<String> getUpToken(@RequestParam(value = "key", required = false) String key, @RequestHeader("Authorization") String authorization) {
         User user = redisService.get(authorization, User.class);
-        if (user==null) {
+        if (user == null) {
             throw new MyRuntimeException("请先登录！");
-        }
-        else if(!StringUtils.hasText(user.getEmail())){
+        } else if (!StringUtils.hasText(user.getEmail())) {
             throw new MyRuntimeException("请先绑定邮箱！");
         }
-
-
         return R.success(QiniuUtil.getToken(key));
     }
 }
