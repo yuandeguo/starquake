@@ -1,8 +1,13 @@
 package com.yuan.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.alibaba.fastjson.JSON;
+import com.yuan.security.JWTUtil;
+import com.yuan.vo.UserJWTVo;
+import com.yuan.vo.UserVO;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author yuanyuan
@@ -16,13 +21,24 @@ public class TestController {
 
     @ResponseBody
     @RequestMapping("test1")
-    public String test1()
+    public String getToken()
     {
-
-
-
-        return null;
+        UserJWTVo userJWTVo=new UserJWTVo(1,"2","3","4","5",6,"7","8",true);
+        Map<String,String> map=new HashMap<>();
+        map.put(JWTUtil.USER_INFO, JSON.toJSONString(userJWTVo));
+        String token = JWTUtil.createToken(map, JWTUtil.JWT_SECRET, JWTUtil.EXPIRATION_TIME);
+        return token;
     }
 
+    @ResponseBody
+    @RequestMapping("test2")
+    public String verifyToken(@RequestHeader("token") String token)
+    {
+        if (!JWTUtil.verifySpecifiedSecret(token, JWTUtil.JWT_SECRET)) {
+          return "false";
+        }
+        UserJWTVo userJWTVo = JSON.parseObject(JWTUtil.getClaim(token, JWTUtil.USER_INFO), UserJWTVo.class);
+        return  userJWTVo.toString();
+    }
 
 }
