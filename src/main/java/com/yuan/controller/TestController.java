@@ -1,9 +1,9 @@
 package com.yuan.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.yuan.security.JWTUtil;
+import com.yuan.security.jwt.JWTUtil;
+import com.yuan.utils.R;
 import com.yuan.vo.UserJWTVo;
-import com.yuan.vo.UserVO;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -21,13 +21,13 @@ public class TestController {
 
     @ResponseBody
     @RequestMapping("test1")
-    public String getToken()
+    public R getToken()
     {
         UserJWTVo userJWTVo=new UserJWTVo(1,"2","3","4","5",6,"7","8",true);
         Map<String,String> map=new HashMap<>();
         map.put(JWTUtil.USER_INFO, JSON.toJSONString(userJWTVo));
         String token = JWTUtil.createToken(map, JWTUtil.JWT_SECRET, JWTUtil.EXPIRATION_TIME);
-        return token;
+        return R.success(token);
     }
 
     @ResponseBody

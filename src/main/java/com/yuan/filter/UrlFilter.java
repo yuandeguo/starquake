@@ -4,7 +4,7 @@ package com.yuan.filter;
  * @author yuanyuan
  * @version V1.0
  * @date 2023/3/8 22:46
- * @Description null
+ * @Description 路径过滤
  */
 
 import com.yuan.service.RedisService;
@@ -23,7 +23,7 @@ public class UrlFilter implements Filter {
     private RedisService redisService;
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-
+        System.out.println("路径过滤");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String requestURI = httpRequest.getRequestURI();
 

@@ -4,6 +4,7 @@ import com.yuan.filter.LimitFlowFilter;
 import com.yuan.filter.UrlFilter;
 import com.yuan.interceptor.AuthorityVerifyInterceptor;
 import com.yuan.interceptor.WebInfoHandlerInterceptor;
+import com.yuan.security.jwt.JWTFilter;
 import com.yuan.service.RedisService;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -79,7 +80,17 @@ public class AddInterceptorConfig implements WebMvcConfigurer {
         registrationBean.setOrder(2);
         return registrationBean;
     }
+    @Bean
+    public FilterRegistrationBean<JWTFilter> JWTFilter(){
+        FilterRegistrationBean<JWTFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new JWTFilter());
+        registrationBean.addUrlPatterns("/api/test/**");
+        registrationBean.setName("JWTFilter");
+        registrationBean.setOrder(3);
+        return registrationBean;
 
+
+    }
 
 
 }

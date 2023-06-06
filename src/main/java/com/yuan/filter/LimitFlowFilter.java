@@ -19,7 +19,7 @@ import java.util.Map;
  * @author yuanyuan
  * @version V1.0
  * @date 2023/4/7 10:15
- * @Description null
+ * @Description 限流
  */
 @AllArgsConstructor
 @Slf4j
@@ -30,6 +30,8 @@ public class LimitFlowFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+
+        System.out.println("限流");
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         String requestURI = httpRequest.getRequestURI();
         Object result = redisService.limit_listPush("limit_list");

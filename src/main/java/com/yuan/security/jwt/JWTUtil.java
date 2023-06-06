@@ -1,4 +1,4 @@
-package com.yuan.security;
+package com.yuan.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
