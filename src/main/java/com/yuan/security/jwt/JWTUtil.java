@@ -32,7 +32,7 @@ public class JWTUtil {
     //签名密钥
     public static final String JWT_SECRET = "yuan18318387647!@#$%^&";
 
-    //有效期默认为 2填
+    //有效期默认为 2天
     public static final Long EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 2;
 
 

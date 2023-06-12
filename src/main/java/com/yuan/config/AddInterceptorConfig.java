@@ -62,35 +62,5 @@ public class AddInterceptorConfig implements WebMvcConfigurer {
 
         ;
     }
-    @Bean
-    public FilterRegistrationBean<LimitFlowFilter> limitFlowFilter() {
-        FilterRegistrationBean<LimitFlowFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new LimitFlowFilter(redisService));
-        registrationBean.addUrlPatterns("/*");
-        registrationBean.setName("limitFlowFilter");
-        registrationBean.setOrder(1);
-        return registrationBean;
-    }
-    @Bean
-    public FilterRegistrationBean<UrlFilter> logFilter() {
-        FilterRegistrationBean<UrlFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new UrlFilter(redisService));
-        registrationBean.addUrlPatterns("/*");
-        registrationBean.setName("LogFilter");
-        registrationBean.setOrder(2);
-        return registrationBean;
-    }
-    @Bean
-    public FilterRegistrationBean<JWTFilter> JWTFilter(){
-        FilterRegistrationBean<JWTFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new JWTFilter());
-        registrationBean.addUrlPatterns("/api/test/**");
-        registrationBean.setName("JWTFilter");
-        registrationBean.setOrder(3);
-        return registrationBean;
-
-
-    }
-
 
 }

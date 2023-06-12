@@ -1,19 +1,16 @@
 package com.yuan.filter;
 
-import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuan.service.RedisService;
 import com.yuan.utils.R;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Map;
 
 /**
  * @author yuanyuan
@@ -23,11 +20,11 @@ import java.util.Map;
  */
 @AllArgsConstructor
 @Slf4j
-public class LimitFlowFilter implements Filter {
+public class LimitFlowFilter implements Filter, Ordered {
 
     private RedisService redisService;
 
-
+    private int order=0;
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
 
@@ -58,4 +55,8 @@ public class LimitFlowFilter implements Filter {
     }
 
 
+    @Override
+    public int getOrder() {
+        return order;
+    }
 }

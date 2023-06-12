@@ -4,7 +4,7 @@ package com.yuan.filter;
  * @author yuanyuan
  * @version V1.0
  * @date 2023/3/8 22:46
- * @Description 路径过滤
+ * @Description 路径过滤  已经弃用
  */
 
 import com.yuan.service.RedisService;
@@ -25,21 +25,15 @@ public class UrlFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         System.out.println("路径过滤");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String requestURI = httpRequest.getRequestURI();
-
-        if(requestURI.indexOf("/api")>-1){
-
-            String ipAddress = getIpAdrress(httpRequest);
-            redisService.setVisitIp(ipAddress);
-            redisService.setVisitUrl();
-
-            requestURI = requestURI.replaceAll("/api","");
-            request.getRequestDispatcher(requestURI).forward(request,response);
-        }
-
+        //String requestURI = httpRequest.getRequestURI();
+        String ipAddress = getIpAdrress(httpRequest);
+        redisService.setVisitIp(ipAddress);
+        redisService.setVisitUrl();
+        chain.doFilter(request,response);
 
     }
-    public  String getIpAdrress(HttpServletRequest request) {
+
+    public String getIpAdrress(HttpServletRequest request) {
         String ip = null;
         //X-Forwarded-For：Squid 服务代理
         String ipAddresses = request.getHeader("X-Forwarded-For");
@@ -81,7 +75,6 @@ public class UrlFilter implements Filter {
         }
         return ip;
     }
-
 
 
 }

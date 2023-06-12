@@ -26,12 +26,10 @@ import java.io.PrintWriter;
  * @Description null
  */
 public class JWTFilter extends BasicHttpAuthenticationFilter {
-
-
+    public  static  final ThreadLocal<Boolean> threadLocal =new ThreadLocal<>();
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
-        System.out.println("登录");
         HttpServletRequest req = (HttpServletRequest) request;
         String authorization = req.getHeader(JWTUtil.AUTH_HEADER_KEY);
         if (StringUtils.isBlank(authorization) || !authorization.startsWith(JWTUtil.TOKEN_PREFIX)) {
@@ -83,8 +81,20 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         return super.preHandle(request, response);
     }
 
-
+    /**
+     * 只写入一次，所有使用 threadLocal
+     * @param response
+     * @param responseEntity
+     * @param statusCode
+     */
     public void writeJsonResponse(ServletResponse response, R responseEntity, int statusCode) {
+        if(threadLocal.get()==null)
+        {
+            threadLocal.set(true);
+        }
+        else{
+            return;
+        }
         try {
             HttpServletResponse res = (HttpServletResponse) response;
             res.setContentType(ContentType.APPLICATION_JSON.getMimeType());

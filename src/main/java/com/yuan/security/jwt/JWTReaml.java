@@ -1,5 +1,9 @@
 package com.yuan.security.jwt;
 
+import com.alibaba.fastjson2.JSON;
+import com.yuan.vo.UserJWTVo;
+import com.yuan.vo.UserVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -20,8 +24,14 @@ import java.util.stream.Collectors;
  * @date 2023/6/6 23:12
  * @Description null
  */
+@Slf4j
 public class JWTReaml extends AuthorizingRealm {
 
+
+    @Override
+    public boolean supports(AuthenticationToken token) {
+        return token instanceof JWTToken;
+    }
 
     /**
      * 权限校验
@@ -30,6 +40,7 @@ public class JWTReaml extends AuthorizingRealm {
      */
     @Override
     public AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        System.out.println(1);
 //        if (principals.isEmpty()) {
 //            return null;
 //        }
@@ -95,38 +106,16 @@ public class JWTReaml extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-//        JWTToken jwtToken = (JWTToken) authenticationToken;
-//        String token = (String) jwtToken.getCredentials();
-//        // 解密获得username，用于和数据库进行对比
-//        if (!JWTUtil.verifySpecifiedSecret(token, JWTConstant.NEW_ADMIN_JWT_SECRET)) {
-//            logger.info("token认证失败,token={}", token);
-//            throw new AuthenticationException("您没有登录，请先登录或注册再进行此操作!");
-//        }
-//        UserSimpleInfoVO userSimpleInfoVO = JSON.parseObject(JWTUtil.getClaim(token, JWTConstant.USER_INFO), UserSimpleInfoVO.class);
-//        AccountTypeEnum accountTypeEnum = userSimpleInfoVO.getAccountTypeEnum();
-//        String account = userSimpleInfoVO.getAccount();
-//        switch (accountTypeEnum) {
-//            case ADMIN: {
-//                ModelResult<AdminUser> adminUserModelResult = adminUserService.queryByAccount(account);
-//                if (!adminUserModelResult.isSuccess() || adminUserModelResult.getModel() == null) {
-//                    throw new AuthenticationException("该用户不存在！");
-//                }
-//                AdminUser adminUser = adminUserModelResult.getModel();
-//                if (adminUser.getDataStatus() == DataStatus.DELETED) {
-//                    throw new AuthenticationException("该用户已被封号！");
-//                }
-//                break;
-//            }
-//            case CANTEEN_SCHEME_DEMO_ACCOUNT: {
-//                ModelResult<CanteenSchemeDemoAccount> demoAccountModelResult = canteenSchemeDemoAccountService.queryByAccount(account);
-//                if (!demoAccountModelResult.isSuccess() || demoAccountModelResult.getModel() == null) {
-//                    throw new AuthenticationException("该用户不存在！");
-//                }
-//                break;
-//            }
-//        }
-//
-//        return new SimpleAuthenticationInfo(userSimpleInfoVO, token, ShiroConstant.JWT_REALM);
-        return null;
+        System.out.println(1);
+        JWTToken jwtToken = (JWTToken) authenticationToken;
+        String token = (String) jwtToken.getCredentials();
+        // 解密获得username，用于和数据库进行对比
+        if (!JWTUtil.verifySpecifiedSecret(token, JWTUtil.JWT_SECRET)) {
+
+            log.info("***JWTReaml.doGetAuthenticationInfo业务结束，token认证失败,token={}", token);
+                       throw new AuthenticationException("您没有登录，请先登录或注册再进行此操作!");
+        }
+        UserJWTVo userJWTVo = JSON.parseObject(JWTUtil.getClaim(token, JWTUtil.USER_INFO), UserJWTVo.class);
+        return new SimpleAuthenticationInfo(userJWTVo, token, "JWTReaml");
     }
 }
