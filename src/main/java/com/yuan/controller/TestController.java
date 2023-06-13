@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.yuan.security.jwt.JWTUtil;
 import com.yuan.utils.R;
 import com.yuan.vo.UserJWTVo;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -32,13 +33,11 @@ public class TestController {
 
     @ResponseBody
     @RequestMapping("test2")
-    public String verifyToken(@RequestHeader("token") String token)
+    public String verifyToken()
     {
-        if (!JWTUtil.verifySpecifiedSecret(token, JWTUtil.JWT_SECRET)) {
-          return "false";
-        }
-        UserJWTVo userJWTVo = JSON.parseObject(JWTUtil.getClaim(token, JWTUtil.USER_INFO), UserJWTVo.class);
-        return  userJWTVo.toString();
+        UserJWTVo loginUserInfo = (UserJWTVo) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
+      //  UserJWTVo userJWTVo = JSON.parseObject(JWTUtil.getClaim(token, JWTUtil.USER_INFO), UserJWTVo.class);
+        return  loginUserInfo.toString();
     }
 
 }

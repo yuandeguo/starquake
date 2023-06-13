@@ -27,8 +27,6 @@ public class LimitFlowFilter implements Filter, Ordered {
     private int order=0;
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-
-        System.out.println("限流");
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         String requestURI = httpRequest.getRequestURI();
         Object result = redisService.limit_listPush("limit_list");

@@ -65,7 +65,7 @@ public class ShiroConfig {
         //配置系统受限资源
         //配置系统公共资源
         Map<String, String> map = new HashMap<String, String>();
-        map.put("/test/**", "jwtFilter");//表示这个为公共资源 一定是在受限资源上面
+        map.put("/test/test2", "jwtFilter");//表示这个为公共资源 一定是在受限资源上面
 
         map.put("/test/test1", "anon");//表示这个为公共资源 一定是在受限资源上面
         shiroFilterFactoryBean.setFilterChainDefinitionMap(map);

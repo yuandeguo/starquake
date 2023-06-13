@@ -23,7 +23,6 @@ public class UrlFilter implements Filter {
     private RedisService redisService;
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        System.out.println("路径过滤");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         //String requestURI = httpRequest.getRequestURI();
         String ipAddress = getIpAdrress(httpRequest);
