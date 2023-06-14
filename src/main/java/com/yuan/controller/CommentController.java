@@ -25,8 +25,8 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping("/admin/commentList")
-    public R commentList(@RequestBody SearchCommentParam searchCommentParam, @RequestHeader("Authorization") String authorization) {
-        return commentService.searchCommentList(searchCommentParam, authorization);
+    public R commentList(@RequestBody SearchCommentParam searchCommentParam) {
+        return commentService.searchCommentList(searchCommentParam);
 
     }
 
@@ -62,9 +62,9 @@ public class CommentController {
      */
     @OperationLogAnnotation(operModul = "saveComment", operType = "保存", operDesc = "saveComment")
     @PostMapping("/saveComment")
-    public R saveComment(@Validated @RequestBody Comment comment, @RequestHeader("Authorization") String authorization) {
+    public R saveComment(@Validated @RequestBody Comment comment) {
 
-        return commentService.saveComment(comment, authorization);
+        return commentService.saveComment(comment);
 
     }
 

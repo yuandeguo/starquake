@@ -1,6 +1,7 @@
 package com.yuan.service.impl;
 
 import cn.hutool.crypto.SecureUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -10,6 +11,7 @@ import com.yuan.myEnum.CommonConst;
 import com.yuan.myEnum.ParamsEnum;
 import com.yuan.params.*;
 import com.yuan.pojo.WebInfo;
+import com.yuan.security.jwt.JWTUtil;
 import com.yuan.service.RedisService;
 import com.yuan.utils.MailUtil;
 import com.yuan.vo.UserVO;
@@ -18,6 +20,8 @@ import com.yuan.service.UserService;
 import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,10 +31,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author yuanyuan
@@ -76,28 +77,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (user.getUserType() != ParamsEnum.USER_TYPE_ADMIN.getCode() && user.getUserType() != ParamsEnum.USER_TYPE_MANAGER.getCode()) {
                 return R.fail("请输入管理员账号！");
             }
-            //判断缓存中是否存在用户id
-            if (redisService.get(CommonConst.ADMIN_TOKEN + user.getId(), String.class) != null) {
-                adminToken = redisService.get(CommonConst.ADMIN_TOKEN + user.getId(), String.class);
-            }
-        } else { //普通用户登录
-            if (DataCacheUtil.get(CommonConst.USER_TOKEN + user.getId()) != null) {
-                userToken = (String) redisService.get(CommonConst.USER_TOKEN + user.getId(), String.class);
-            }
         }
-        if (isAdmin && !StringUtils.hasText(adminToken)) {
-            String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-            adminToken = CommonConst.ADMIN_ACCESS_TOKEN + uuid;
-            redisService.set(adminToken, user, CommonConst.TOKEN_EXPIRE);
-            redisService.set(CommonConst.ADMIN_TOKEN + user.getId(), adminToken, CommonConst.TOKEN_EXPIRE);
-        } else if (!isAdmin && !StringUtils.hasText(userToken)) {
-            String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-            userToken = CommonConst.USER_ACCESS_TOKEN + uuid;
-            redisService.set(userToken, user, CommonConst.TOKEN_EXPIRE);
-            redisService.set(CommonConst.USER_TOKEN + user.getId(), userToken, CommonConst.TOKEN_EXPIRE);
-        }
-
-
+        Map<String,String> map=new HashMap<>();
+        map.put(JWTUtil.USER_INFO, JSON.toJSONString(user));
+        String token = JWTUtil.createToken(map, JWTUtil.JWT_SECRET, JWTUtil.EXPIRATION_TIME);
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
         userVO.setPassword(null);
@@ -105,34 +88,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (isAdmin && user.getUserType() == ParamsEnum.USER_TYPE_ADMIN.getCode()) {
             userVO.setIsBoss(true);
         }
-
-        if (isAdmin) {
-            userVO.setAccessToken(adminToken);
-        } else {
-            userVO.setAccessToken(userToken);
-        }
+        userVO.setAccessToken(token);
         return R.success(userVO);
     }
 
     /**
      * 根据请求头的权限鉴定来退出登录
      *
-     * @param authorization
      * @return
      */
     @Override
-    public R exitLogin(String authorization) {
-        User user = redisService.get(authorization, User.class);
-        if (user == null)
-            return R.success();
-        Integer userId = user.getId();
-        //删除USER_TOKEN+id
-        if (authorization.contains(CommonConst.USER_ACCESS_TOKEN)) {
-            redisService.remove(CommonConst.USER_TOKEN + userId);
-        } else if (authorization.contains(CommonConst.ADMIN_ACCESS_TOKEN)) {
-            redisService.remove(CommonConst.ADMIN_TOKEN + userId);
+    public R exitLogin() {
+        Subject subject = SecurityUtils.getSubject();
+        if(subject.isAuthenticated()) {
+            subject.logout();
         }
-        redisService.remove(authorization);
         return R.success();
     }
 
@@ -179,7 +149,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public R emailForBind(String place, Integer flag, String authorization) {
+    public R emailForBind(String place, Integer flag) {
         int code = new Random().nextInt(900000) + 100000;
         if (flag == 1) {
 
@@ -192,19 +162,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             WebInfo webInfo = (WebInfo) DataCacheUtil.get(CommonConst.WEB_INFO);
             mailUtil.sendMailMessage(mail, "您有一封来自" + (webInfo == null ? "yuan010" : webInfo.getWebName()) + "的回执！", text);
         }
-        Integer userId = (redisService.get(authorization, User.class)).getId();
+        Integer userId = (  (User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal()).getId();
         redisService.set(CommonConst.USER_CODE + userId + "_" + place + "_" + flag, Integer.valueOf(code), 300);
         return R.success();
     }
 
     @Override
-    public R updateSecretInfo(UserUpdateSecretInfoParam userUpdateSecretInfoParam, String authorization) {
+    public R updateSecretInfo(UserUpdateSecretInfoParam userUpdateSecretInfoParam) {
         String password = new String(SecureUtil.aes(CommonConst.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8)).decrypt(userUpdateSecretInfoParam.getPassword()));
         Integer flag = userUpdateSecretInfoParam.getFlag();
         String place = userUpdateSecretInfoParam.getPlace();
         String code = userUpdateSecretInfoParam.getCode();
 
-        User user = redisService.get(authorization, User.class);
+        User user = (User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
         redisService.remove(CommonConst.USER_CACHE + user.getId().toString());
 
         if ((flag == 1 || flag == 2) && !DigestUtils.md5DigestAsHex(password.getBytes()).equals(user.getPassword())) {
@@ -230,13 +200,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         }
         updateById(user);
-        String Token = redisService.get(CommonConst.USER_TOKEN + user.getId(), String.class);
-        redisService.set(Token, user, CommonConst.TOKEN_EXPIRE);
-        redisService.set(CommonConst.USER_TOKEN + user.getId(), Token, CommonConst.TOKEN_EXPIRE);
+        Map<String,String> map=new HashMap<>();
+        map.put(JWTUtil.USER_INFO, JSON.toJSONString(user));
+        String token = JWTUtil.createToken(map, JWTUtil.JWT_SECRET, JWTUtil.EXPIRATION_TIME);
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
         userVO.setPassword(null);
-
+        userVO.setAccessToken(token);
         return R.success(userVO);
     }
 
@@ -336,19 +306,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         save(u);
         User one = lambdaQuery().eq(User::getId, u.getId()).one();
-        String userToken = CommonConst.USER_ACCESS_TOKEN + UUID.randomUUID().toString().replaceAll("-", "");
-        redisService.set(userToken, one, CommonConst.TOKEN_EXPIRE);
-        redisService.set(CommonConst.USER_TOKEN + one.getId(), userToken, CommonConst.TOKEN_EXPIRE);
+
+        Map<String,String> map=new HashMap<>();
+        map.put(JWTUtil.USER_INFO, JSON.toJSONString(one));
+        String token = JWTUtil.createToken(map, JWTUtil.JWT_SECRET, JWTUtil.EXPIRATION_TIME);
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(one, userVO);
         userVO.setPassword(null);
-        userVO.setAccessToken(userToken);
+        userVO.setAccessToken(token);
         return R.success(userVO);
     }
 
     @Override
-    public R updateUserInfo(User user, String authorization) {
-        Integer userId = (redisService.get(authorization, User.class)).getId();
+    public R updateUserInfo(User user) {
+        Integer userId = ( (User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal()).getId();
         if (StringUtils.hasText(user.getUsername())) {
             String regex = "\\d{11}";
             if (user.getUsername().matches(regex)) {
@@ -371,12 +342,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         u.setIntroduction(user.getIntroduction());
         updateById(u);
         User one = lambdaQuery().eq(User::getId, u.getId()).one();
-        redisService.set(authorization, one, CommonConst.TOKEN_EXPIRE);
-        redisService.set(CommonConst.USER_TOKEN + one.getId(), authorization, CommonConst.TOKEN_EXPIRE);
+
+        Map<String,String> map=new HashMap<>();
+        map.put(JWTUtil.USER_INFO, JSON.toJSONString(one));
+        String token = JWTUtil.createToken(map, JWTUtil.JWT_SECRET, JWTUtil.EXPIRATION_TIME);
 
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(one, userVO);
         userVO.setPassword(null);
+        userVO.setAccessToken(token);
         return R.success(userVO);
     }
 
@@ -393,17 +367,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         if (userStatusOrTypeParam.getUserStatus() != null && !userStatusOrTypeParam.getUserStatus()) {
 
-            //管理员
-            if (redisService.get(CommonConst.ADMIN_TOKEN + user.getId(), String.class) != null) {
-                String token = redisService.get(CommonConst.ADMIN_TOKEN + user.getId(), String.class);
-                redisService.remove(CommonConst.ADMIN_TOKEN + user.getId());
-                redisService.remove(token);
-            }//普通用户
-            else if (redisService.get(CommonConst.USER_TOKEN + user.getId(), String.class) != null) {
-                String token = (String) redisService.get(CommonConst.USER_TOKEN + user.getId(), String.class);
-                redisService.remove(CommonConst.USER_TOKEN + user.getId());
-                redisService.remove(token);
-            }
+//            //管理员
+//            if (redisService.get(CommonConst.ADMIN_TOKEN + user.getId(), String.class) != null) {
+//                String token = redisService.get(CommonConst.ADMIN_TOKEN + user.getId(), String.class);
+//                redisService.remove(CommonConst.ADMIN_TOKEN + user.getId());
+//                redisService.remove(token);
+//            }//普通用户
+//            else if (redisService.get(CommonConst.USER_TOKEN + user.getId(), String.class) != null) {
+//                String token = (String) redisService.get(CommonConst.USER_TOKEN + user.getId(), String.class);
+//                redisService.remove(CommonConst.USER_TOKEN + user.getId());
+//                redisService.remove(token);
+//            }
         }
 
         return R.success();

@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RedisServiceImpl implements RedisService {
     @Resource
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
@@ -260,8 +260,42 @@ public class RedisServiceImpl implements RedisService {
 
     public boolean articleDataUp(String fields, Integer articleId) {
         String key = "article::" + articleId.toString();
-        stringRedisTemplate.opsForHash().increment(key, fields, 1);
+        redisTemplate.opsForHash().increment(key, fields, 1);
         return true;
     }
 
+    @Override
+    public void putHash(String hashName, String key, Object value) {
+        redisTemplate.opsForHash().put(hashName, key, value);
+    }
+
+    @Override
+    public Object getHashValueByKey(String hashName, String key) {
+        return redisTemplate.opsForHash().get(hashName, key);
+    }
+
+    @Override
+    public void removeHashKey(String hashName, String key) {
+        redisTemplate.opsForHash().delete(hashName, key);
+    }
+
+    @Override
+    public void removeHash(String hashName) {
+        redisTemplate.delete(hashName);
+    }
+
+    @Override
+    public int sizeHash(String hashName) {
+        return redisTemplate.opsForHash().size(hashName).intValue();
+    }
+
+    @Override
+    public Set<Object> keysHash(String hashName) {
+        return redisTemplate.opsForHash().keys(hashName);
+    }
+
+    @Override
+    public Collection<Object> valuesHash(String hashName) {
+        return redisTemplate.opsForHash().values(hashName);
+    }
 }

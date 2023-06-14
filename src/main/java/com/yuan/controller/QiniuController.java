@@ -5,6 +5,7 @@ import com.yuan.pojo.User;
 import com.yuan.service.RedisService;
 import com.yuan.utils.QiniuUtil;
 import com.yuan.utils.R;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +27,8 @@ public class QiniuController {
      * 获取覆盖凭证
      */
     @GetMapping("/getUpToken")
-    public R<String> getUpToken(@RequestParam(value = "key", required = false) String key, @RequestHeader("Authorization") String authorization) {
-        User user = redisService.get(authorization, User.class);
+    public R<String> getUpToken(@RequestParam(value = "key", required = false) String key) {
+        User user =(User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
         if (user == null) {
             throw new MyRuntimeException("请先登录！");
         } else if (!StringUtils.hasText(user.getEmail())) {

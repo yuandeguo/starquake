@@ -35,8 +35,8 @@ public class ArticleController {
      * 查询文章列表
      */
     @PostMapping("/admin/articleList")
-    public R listBossArticle(@RequestBody SearchArticleParam searchArticleParam, @RequestHeader("Authorization") String authorization) {
-        return articleService.listArticle(searchArticleParam, authorization);
+    public R listBossArticle(@RequestBody SearchArticleParam searchArticleParam) {
+        return articleService.listArticle(searchArticleParam);
 
     }
 
@@ -82,10 +82,10 @@ public class ArticleController {
      */
     @OperationLogAnnotation(operModul = "管理员-更新文章", operType = "更新", operDesc = "更新文章")
     @PostMapping("/admin/updateArticle")
-    public R updateArticle(@Validated @RequestBody Article article, BindingResult result, @RequestHeader("Authorization") String authorization) {
+    public R updateArticle(@Validated @RequestBody Article article, BindingResult result) {
         if (result.hasErrors())
             return R.fail("文章参数错误");
-        return articleService.updateArticle(article, authorization);
+        return articleService.updateArticle(article);
 
 
     }
@@ -95,16 +95,15 @@ public class ArticleController {
      *
      * @param article
      * @param result
-     * @param authorization
      * @return
      */
     @PostMapping("/admin/saveArticle")
-    public R saveArticle(@Validated @RequestBody Article article, BindingResult result, @RequestHeader("Authorization") String authorization) {
+    public R saveArticle(@Validated @RequestBody Article article, BindingResult result) {
         if (result.hasErrors()) {
             return R.fail("文章参数错误");
         }
 
-        return articleService.saveArticle(article, authorization);
+        return articleService.saveArticle(article);
     }
 
     /**

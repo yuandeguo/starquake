@@ -3,8 +3,9 @@ package com.yuan.config;
 import com.yuan.filter.LimitFlowFilter;
 import com.yuan.filter.UrlFilter;
 import com.yuan.security.FirstExceptionStrategy;
+import com.yuan.security.jwt.JWTCacheManager;
 import com.yuan.security.jwt.JWTFilter;
-import com.yuan.security.jwt.JWTReaml;
+import com.yuan.security.jwt.JWTRealm;
 import com.yuan.service.RedisService;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.authz.ModularRealmAuthorizer;
@@ -65,9 +66,36 @@ public class ShiroConfig {
         //配置系统受限资源
         //配置系统公共资源
         Map<String, String> map = new HashMap<String, String>();
-        map.put("/test/test2", "jwtFilter");//表示这个为公共资源 一定是在受限资源上面
+      //  map.put("/test/test2", "jwtFilter");//表示这个为公共资源 一定是在受限资源上面
 
-        map.put("/test/test1", "anon");//表示这个为公共资源 一定是在受限资源上面
+
+
+        map.put("/article/admin/**","jwtFilter");
+        map.put("/comment/admin/**","jwtFilter");
+        map.put("/label/admin/**","jwtFilter");
+        map.put("/resource/admin/**","jwtFilter");
+        map.put("/resourcePath/admin/**","jwtFilter");
+        map.put("/sort/admin/**","jwtFilter");
+        map.put("/treeHole/admin/**","jwtFilter");
+        map.put("/user/admin/**","jwtFilter");
+        map.put("/webInfo/admin/**","jwtFilter");
+        map.put("/weiYan/**","jwtFilter");
+        map.put("/comment/saveComment","jwtFilter");
+        map.put("/qiniu/getUpToken","jwtFilter");
+        map.put("/resource/saveResource","jwtFilter");
+        map.put("/resourcePath/saveFriend","jwtFilter");
+        map.put("/user/logout","jwtFilter");
+        map.put("/user/updateUserInfo","jwtFilter");
+        map.put("/user/getCodeForBind","jwtFilter");
+        map.put("/user/updateSecretInfo","jwtFilter");
+        map.put("/weiYan/deleteWeiYan","jwtFilter");
+        map.put("/weiYan/saveWeiYan","jwtFilter");
+        map.put("/**", "anon");//表示这个为公共资源 一定是在受限资源上面
+
+
+
+
+
         shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
         Map<String, Filter> filterMap=new HashMap<>();
         JWTFilter jwtFilter=new JWTFilter();
@@ -79,20 +107,31 @@ public class ShiroConfig {
 
     //创建安全管理器
     @Bean
-    public DefaultWebSecurityManager getDefaultWebSecurityManager(Realm realm,ModularRealmAuthorizer modularRealmAuthorizer,ModularRealmAuthenticator modularRealmAuthenticator) {
+    public DefaultWebSecurityManager getDefaultWebSecurityManager(JWTCacheManager jwtCacheManager,Realm realm,ModularRealmAuthorizer modularRealmAuthorizer,ModularRealmAuthenticator modularRealmAuthenticator) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(realm);
         securityManager.setAuthenticator(modularRealmAuthenticator);
         securityManager.setAuthorizer(modularRealmAuthorizer);
+        securityManager.setCacheManager(jwtCacheManager);
         return securityManager;
     }
 
     //创建自定义Realm
     @Bean
     public Realm realm() {
-        JWTReaml realm = new JWTReaml();
+        JWTRealm realm = new JWTRealm();
         return realm;
     }
+
+    @Bean
+    public JWTCacheManager jwtCacheManager()
+    {
+        JWTCacheManager jwtCacheManager=new JWTCacheManager("jwtCache",28800);
+        return jwtCacheManager;
+    }
+
+
+
 
     @Bean
     public ModularRealmAuthorizer modularRealmAuthorizer(Realm realm){

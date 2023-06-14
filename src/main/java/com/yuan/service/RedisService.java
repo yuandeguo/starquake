@@ -3,8 +3,10 @@ package com.yuan.service;
 import com.yuan.params.ArticleLikeAndViewCurrentParam;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface RedisService {
     /**
@@ -53,5 +55,21 @@ public interface RedisService {
 
     String limit_listPush(String limitListKey);
 
+
+
+
+    void putHash(String hashName, String key, Object value);
+
+    Object getHashValueByKey(String hashName, String key);
+
+    void removeHashKey(String hashName, String key);
+
+    void removeHash(String hashName);
+
+    int sizeHash(String hashName);
+
+    Set<Object> keysHash(String hashName);
+
+    Collection<Object> valuesHash(String hashName);
 
 }

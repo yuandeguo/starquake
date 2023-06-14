@@ -8,7 +8,7 @@ import com.yuan.utils.R;
 public interface WeiYanService extends IService<WeiYan> {
     R listWeiYan(PageParam pageParam);
 
-    R saveWeiYan(WeiYan weiYanVO, String authorization);
+    R saveWeiYan(WeiYan weiYanVO );
 
-    R deleteWeiYan(Integer id, String authorization);
+    R deleteWeiYan(Integer id);
 }

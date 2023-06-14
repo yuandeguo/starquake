@@ -14,6 +14,7 @@ import com.yuan.service.RedisService;
 import com.yuan.service.WeiYanService;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -51,8 +52,8 @@ public class WeiYanServiceImpl extends ServiceImpl<WeiYanMapper, WeiYan> impleme
     }
 
     @Override
-    public R saveWeiYan(WeiYan weiYanVO, String authorization) {
-        User user = redisService.get(authorization, User.class);
+    public R saveWeiYan(WeiYan weiYanVO) {
+        User user =(User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
         assert user != null;
         if (user.getUserType() != ParamsEnum.USER_TYPE_ADMIN.getCode())
             return R.fail("错误，站长");
@@ -72,8 +73,8 @@ public class WeiYanServiceImpl extends ServiceImpl<WeiYanMapper, WeiYan> impleme
     }
 
     @Override
-    public R deleteWeiYan(Integer id, String authorization) {
-        User user = redisService.get(authorization, User.class);
+    public R deleteWeiYan(Integer id) {
+        User user = (User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
         assert user != null;
         if (user.getUserType() != ParamsEnum.USER_TYPE_ADMIN.getCode())
             return R.fail("错误，不是管理员");

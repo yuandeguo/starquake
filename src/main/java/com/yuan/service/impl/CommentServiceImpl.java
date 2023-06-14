@@ -23,6 +23,7 @@ import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import com.yuan.vo.CommentVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -54,9 +55,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     private RedisService redisService;
 
     @Override
-    public R searchCommentList(SearchCommentParam searchCommentParam, String authorization) {
+    public R searchCommentList(SearchCommentParam searchCommentParam) {
         QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
-        User user =redisService.get(authorization, User.class);
+        User user =(User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
         //如果不是boss，只能查看自己文章的评论
         if (user.getUserType() != ParamsEnum.USER_TYPE_ADMIN.getCode()) {
             QueryWrapper<Article> articleQueryWrapper = new QueryWrapper<>();
@@ -176,8 +177,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     }
 
     @Override
-    public R saveComment(Comment comment, String authorization) {
-        User user = redisService.get(authorization, User.class);
+    public R saveComment(Comment comment) {
+        User user =(User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
         if (user == null) {
             return R.fail("评论保存失败,请重新登录");
         }

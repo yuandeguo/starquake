@@ -16,5 +16,5 @@ import com.yuan.utils.R;
 public interface ResourceService  extends IService<Resource> {
    R listResource(SearchResourceParam searchResourceParam);
 
-    R saveResource(Resource resource, String authorization);
+    R saveResource(Resource resource );
 }

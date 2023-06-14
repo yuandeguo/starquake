@@ -8,6 +8,7 @@ import com.yuan.pojo.User;
 import com.yuan.service.RedisService;
 import com.yuan.service.ResourcePathService;
 import com.yuan.utils.R;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -110,8 +111,8 @@ public class ResourcePathController {
 
 
     @PostMapping("/saveFriend")
-    public R saveFriend(@RequestBody ResourcePath resourcePath, @RequestHeader("Authorization") String authorization) {
-        User user = redisService.get(authorization, User.class);
+    public R saveFriend(@RequestBody ResourcePath resourcePath) {
+        User user = (User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
         if (!StringUtils.hasText(user.getEmail()))
             return R.fail("请绑定邮箱");
 

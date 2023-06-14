@@ -1,6 +1,7 @@
 package com.yuan.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.yuan.pojo.User;
 import com.yuan.security.jwt.JWTUtil;
 import com.yuan.utils.R;
 import com.yuan.vo.UserJWTVo;
@@ -35,9 +36,9 @@ public class TestController {
     @RequestMapping("test2")
     public String verifyToken()
     {
-        UserJWTVo loginUserInfo = (UserJWTVo) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
+        User user = (User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
       //  UserJWTVo userJWTVo = JSON.parseObject(JWTUtil.getClaim(token, JWTUtil.USER_INFO), UserJWTVo.class);
-        return  loginUserInfo.toString();
+        return  user.toString();
     }
 
 }

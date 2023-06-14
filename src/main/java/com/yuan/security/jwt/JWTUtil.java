@@ -38,7 +38,7 @@ public class JWTUtil {
 
     //用户信息
     public static final String USER_INFO = "userInfo";
-
+    public static final String JWT_REALM = "JWTRealm";
     /**
      * @param map        令牌payload数据
      * @param secret     指定令牌生成时的密钥

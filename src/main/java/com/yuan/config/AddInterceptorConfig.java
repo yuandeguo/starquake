@@ -43,24 +43,22 @@ public class AddInterceptorConfig implements WebMvcConfigurer {
                         "/weiYan/**",
                         "sort/redis/**"
                         );
-        registry.addInterceptor(new AuthorityVerifyInterceptor(redisService))
-                .addPathPatterns(
-                "/article/admin/**",
-                "/comment/admin/**",
-                "/label/admin/**",
-                "/resource/admin/**",
-                "/resourcePath/admin/**",
-                "/sort/admin/**",
-                "/treeHole/admin/**",
-                "/user/admin/**",
-                "/webInfo/admin/**",
-                "/weiYan/**"
-
-            ).excludePathPatterns(
-                        "/weiYan/listWeiYan"
-                )
-
-        ;
+//        registry.addInterceptor(new AuthorityVerifyInterceptor(redisService))
+//                .addPathPatterns(
+//                "/article/admin/**",
+//                "/comment/admin/**",
+//                "/label/admin/**",
+//                "/resource/admin/**",
+//                "/resourcePath/admin/**",
+//                "/sort/admin/**",
+//                "/treeHole/admin/**",
+//                "/user/admin/**",
+//                "/webInfo/admin/**",
+//                "/weiYan/**"
+//
+//            ).excludePathPatterns(
+//                        "/weiYan/listWeiYan"
+//                );
     }
 
 }

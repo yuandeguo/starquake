@@ -13,6 +13,7 @@ import com.yuan.service.RedisService;
 import com.yuan.service.ResourceService;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -42,7 +43,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     @Override
-    public R saveResource(Resource resource, String authorization) {
+    public R saveResource(Resource resource) {
         if (!StringUtils.hasText(resource.getType()) || !StringUtils.hasText(resource.getPath())) {
             return R.fail("资源类型和资源路径不能为空！");
         }
@@ -51,7 +52,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         re.setType(resource.getType());
         re.setSize(resource.getSize());
         re.setMimeType(resource.getMimeType());
-        re.setUserId((redisService.get(authorization, User.class)).getId());
+        re.setUserId(((User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal()).getId());
         re.setCreateTime(LocalDateTimeUtil.now());
         save(re);
         return R.success();

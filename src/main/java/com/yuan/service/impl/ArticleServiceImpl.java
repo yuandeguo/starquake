@@ -16,6 +16,7 @@ import com.yuan.service.*;
 import com.yuan.utils.R;
 import com.yuan.vo.ArticleVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +65,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      * @return
      */
     @Override
-    public R listArticle(SearchArticleParam searchArticleParam, String authorization) {
+    public R listArticle(SearchArticleParam searchArticleParam ) {
 
         QueryWrapper<Article> queryWrapper = new QueryWrapper<>();
         if (StringUtils.hasText(searchArticleParam.getSearchKey())) {
@@ -81,7 +82,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
         if (!searchArticleParam.getIsBossSearch())//不是boss只能查看直接的文章
         {
-            queryWrapper.eq("user_id", (redisService.get(authorization, User.class)).getId());
+            queryWrapper.eq("user_id", ((User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal()).getId());
         }
         queryWrapper.orderByDesc("create_time");
         IPage<Article> page = new Page<>(searchArticleParam.getCurrent(), searchArticleParam.getSize());
@@ -162,18 +163,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      * 保存文章信息
      *
      * @param article
-     * @param authorization
      * @return
      */
     @Override
     @Transactional
-    public R saveArticle(Article article, String authorization) {
+    public R saveArticle(Article article ) {
         if (!article.getViewStatus()) {
             if (!StringUtils.hasText(article.getPassword())) {
                 return R.fail("文章参数错误");
             }
         }
-        Integer userId = (redisService.get(authorization, User.class)).getId();
+        Integer userId = ((User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal()).getId();
         article.setUserId(userId);
         article.setCreateTime(LocalDateTime.now());
         article.setUpdateTime(LocalDateTime.now());
@@ -255,15 +255,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      * 更新文章
      *
      * @param article
-     * @param authorization
      * @return
      */
     @Override
     @Transactional
-    public R updateArticle(Article article, String authorization) {
+    public R updateArticle(Article article ) {
         redisService.remove(CommonConst.ARTICLE_CACHE + "ById:" + article.getId());
 
-        article.setUpdateBy((redisService.get(authorization, User.class)).getUsername());
+        article.setUpdateBy(((User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal()).getUsername());
         boolean b = updateById(article);
         if (!b) {
             return R.fail("文章更新失败");

@@ -41,7 +41,7 @@ public class UserController {
      */
     @GetMapping("/logout")
     public R exitLogin(@RequestHeader("Authorization") String authorization) {
-        return userService.exitLogin(authorization);
+        return userService.exitLogin();
     }
 
     /**
@@ -69,12 +69,11 @@ public class UserController {
 
     /**
      * @param user
-     * @param authorization
      * @return
      */
     @PostMapping("/updateUserInfo")
-    public R updateUserInfo(@RequestBody User user, @RequestHeader("Authorization") String authorization) {
-        return userService.updateUserInfo(user, authorization);
+    public R updateUserInfo(@RequestBody User user) {
+        return userService.updateUserInfo(user);
     }
 
     /**
@@ -85,8 +84,8 @@ public class UserController {
      * @return
      */
     @GetMapping("/getCodeForBind")
-    public R getCodeForBind(@RequestParam("place") String place, @RequestParam("flag") Integer flag, @RequestHeader("Authorization") String authorization) {
-        return userService.emailForBind(place, flag, authorization);
+    public R getCodeForBind(@RequestParam("place") String place, @RequestParam("flag") Integer flag) {
+        return userService.emailForBind(place, flag);
     }
 
     /**
@@ -97,9 +96,9 @@ public class UserController {
      * 3 密码：place=老密码&password=新密码
      */
     @PostMapping("/updateSecretInfo")
-    public R updateSecretInfo(@RequestBody UserUpdateSecretInfoParam userUpdateSecretInfoParam, @RequestHeader("Authorization") String authorization) {
+    public R updateSecretInfo(@RequestBody UserUpdateSecretInfoParam userUpdateSecretInfoParam) {
 
-        return userService.updateSecretInfo(userUpdateSecretInfoParam, authorization);
+        return userService.updateSecretInfo(userUpdateSecretInfoParam);
     }
 
     /**

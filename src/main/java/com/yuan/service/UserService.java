@@ -20,7 +20,7 @@ public interface UserService extends IService<User> {
      * @param authorization
      * @return
      */
-    R exitLogin(String authorization);
+    R exitLogin();
 
     /**
      * 查询用户集合
@@ -36,9 +36,9 @@ public interface UserService extends IService<User> {
      * @param flag
      * @return
      */
-    R emailForBind(String place, Integer flag,String authorization);
+    R emailForBind(String place, Integer flag);
 
-    R updateSecretInfo(UserUpdateSecretInfoParam userUpdateSecretInfoParam, String authorization);
+    R updateSecretInfo(UserUpdateSecretInfoParam userUpdateSecretInfoParam);
 
     R getCodeForForgetPasswordOrRegister(String place, Integer flag);
 
@@ -51,7 +51,7 @@ public interface UserService extends IService<User> {
      */
     R register(UserRegisterParam userRegisterParam);
 
-    R updateUserInfo(User user, String authorization);
+    R updateUserInfo(User user);
 
     R changeUserStatusOrTypeParam(UserStatusOrTypeParam userStatusOrTypeParam);
 }

@@ -4,6 +4,7 @@ import com.yuan.params.PageParam;
 import com.yuan.pojo.WeiYan;
 import com.yuan.service.WeiYanService;
 import com.yuan.utils.R;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -25,9 +26,9 @@ public class WeiYanController {
      * 保存
      */
     @PostMapping("/saveWeiYan")
-    public R saveWeiYan(@RequestBody WeiYan weiYanVO, @RequestHeader("Authorization") String authorization) {
+    public R saveWeiYan(@RequestBody WeiYan weiYanVO) {
 
-        return weiYanService.saveWeiYan(weiYanVO, authorization);
+        return weiYanService.saveWeiYan(weiYanVO);
 
     }
 
@@ -35,8 +36,8 @@ public class WeiYanController {
      * 删除
      */
     @GetMapping("/deleteWeiYan")
-    public R deleteWeiYan(@RequestParam("id") Integer id, @RequestHeader("Authorization") String authorization) {
-        return weiYanService.deleteWeiYan(id, authorization);
+    public R deleteWeiYan(@RequestParam("id") Integer id) {
+        return weiYanService.deleteWeiYan(id);
 
 
     }
@@ -45,6 +46,7 @@ public class WeiYanController {
      * 查询List
      */
     @PostMapping("/listWeiYan")
+    @RequiresPermissions("permission")
     public R listWeiYan(@RequestBody PageParam pageParam) {
         return weiYanService.listWeiYan(pageParam);
 

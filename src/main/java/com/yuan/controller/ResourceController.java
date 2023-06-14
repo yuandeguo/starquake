@@ -31,8 +31,8 @@ public class ResourceController {
      * 保存
      */
     @PostMapping("/saveResource")
-    public R saveResource(@RequestBody Resource resource, @RequestHeader("Authorization") String authorization) {
-        return resourceService.saveResource(resource, authorization);
+    public R saveResource(@RequestBody Resource resource) {
+        return resourceService.saveResource(resource);
 
     }
 
