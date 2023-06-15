@@ -119,7 +119,7 @@ public class PictureUtil {
     }
 
 
-    public static void picture(PictureHandleParam param,String source,String target) throws IOException {
+    public static void pictureHandle(PictureHandleParam param,String source,String target) throws IOException {
 
         Thumbnails.Builder<File> handleFile = Thumbnails.of(source);
         Integer pictureSizeType= param.getPictureSizeType();

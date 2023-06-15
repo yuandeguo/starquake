@@ -1,6 +1,7 @@
 package com.yuan.params;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 
@@ -40,6 +41,9 @@ public class PictureHandleParam implements Serializable {
      *  图片旋转，angle 为旋转的角度
      */
     Double angel;
+
+
+    MultipartFile[] file;
 
 
 
