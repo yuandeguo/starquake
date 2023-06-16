@@ -5,10 +5,12 @@ import com.yuan.myEnum.CommonConst;
 import com.yuan.pojo.WebInfo;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -190,7 +192,11 @@ public class DataCacheUtil {
     public static HttpServletRequest getRequest() {
         return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
     }
-
+    public static HttpServletResponse getResponse() {
+        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+        HttpServletResponse response = ((ServletRequestAttributes)requestAttributes).getResponse();
+        return response;
+    }
 
 
 }

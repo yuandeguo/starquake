@@ -1,6 +1,7 @@
 package com.yuan.service;
 
 import com.yuan.params.PictureHandleParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -11,5 +12,6 @@ import java.io.IOException;
  * @Description null
  */
 public interface DocService {
-    void pictureHandle(PictureHandleParam pictureHandleParam) throws IOException;
+    String pictureHandle(PictureHandleParam pictureHandleParam) throws IOException;
+    void pictureHandleTemp(MultipartFile[] param) throws IOException;
 }

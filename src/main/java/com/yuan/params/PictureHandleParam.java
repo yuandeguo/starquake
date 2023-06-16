@@ -43,7 +43,7 @@ public class PictureHandleParam implements Serializable {
     Double angel;
 
 
-    MultipartFile[] file;
+    MultipartFile file;
 
 
 

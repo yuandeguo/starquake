@@ -30,6 +30,7 @@ public class MyExceptionHandler {
     public R handlerException(Exception ex) {
         log.error("请求URL-----------------" + DataCacheUtil.getRequest().getRequestURL());
         log.error("出错啦-----------------" + ex);
+        DataCacheUtil.getResponse().setStatus(500);
         if (ex instanceof MyRuntimeException) {
             MyRuntimeException e = (MyRuntimeException) ex;
             return R.fail(e.getMessage());
