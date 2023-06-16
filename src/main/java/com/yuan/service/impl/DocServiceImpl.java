@@ -18,10 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -43,10 +40,10 @@ public class DocServiceImpl implements DocService {
     public String pictureHandle(PictureHandleParam param) throws IOException {
         MultipartFile file = param.getFile();
         InputStream inputStream = file.getInputStream();
-        File dir = new File("D:\\personalProject\\blog\\rear\\starquake\\src\\inputPic\\");
+        File dir = new File("D:\\my_java_project\\yuan_blog\\yuan_blog\\src\\inputPic\\");
         String suffix= param.getFormat();
         if(StringUtils.isBlank(suffix)){
-            suffix = getSuffix(file.getOriginalFilename());
+            suffix = getSuffix(Objects.requireNonNull(file.getOriginalFilename()));
         }
         else {
             suffix="."+suffix;

@@ -2,6 +2,7 @@ package com.yuan.controller;
 
 import com.yuan.params.PictureHandleParam;
 import com.yuan.service.DocService;
+import com.yuan.utils.DataCacheUtil;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -48,14 +49,18 @@ public class DocController {
 
     @RequestMapping(value = "/docDown", method = RequestMethod.GET)
     @ResponseBody
-    public void  downloadLocal(String path, HttpServletResponse response) throws IOException {
-        path="D:\\personalProject\\blog\\rear\\starquake\\src\\inputPic\\"+path;
+    public void  downloadLocal(@RequestParam("path") String path, HttpServletResponse response) throws IOException {
+        path="D:\\my_java_project\\yuan_blog\\yuan_blog\\src\\inputPic\\"+path;
         // 读到流中
         InputStream inputStream = new FileInputStream(path);// 文件的存放路径
         response.reset();
-        response.setContentType("application/octet-stream");
+        response.setContentType("application/x-msdownload");
         String filename = new File(path).getName();
         response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(filename, "UTF-8"));
+        response.addHeader("Access-control-Allow-Origin", DataCacheUtil.getRequest().getHeader("Origin"));
+        response.addHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
+        response.addHeader("Access-Control-Allow-Headers",  DataCacheUtil.getRequest().getHeader("Access-Control-Request-Headers"));
+
         ServletOutputStream outputStream = response.getOutputStream();
         byte[] b = new byte[1024];
         int len;
@@ -63,6 +68,8 @@ public class DocController {
         while ((len = inputStream.read(b)) > 0) {
             outputStream.write(b, 0, len);
         }
+        outputStream.flush();
+        outputStream.close();
         inputStream.close();
     }
 
