@@ -55,6 +55,13 @@ public interface RedisService {
 
     String limit_listPush(String limitListKey);
 
+    Long setEmptyList(String key, Object value );
+   Long leftPush(String key, Object value, Long expire);
+   List<String> getListRange(String key, long start, long end);
+
+
+
+
 
 
 

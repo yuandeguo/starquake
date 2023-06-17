@@ -7,6 +7,7 @@ import com.yuan.pojo.Article;
 import com.yuan.pojo.VisitNum;
 import com.yuan.service.ArticleService;
 import com.yuan.service.RedisService;
+import com.yuan.task.DelayedTaskManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,8 +32,10 @@ public class UpdateArticleOnTime {
     RedisService redisService;
         @Resource
     ArticleService articleService;
-@Resource
+        @Resource
     VisitNumMapper visitNumMapper;
+    @Autowired
+    DelayedTaskManager delayedTaskManager;
         //每天
         @Scheduled(cron = "0 0 1 * * ? ")
         @Transactional
@@ -72,10 +75,10 @@ public class UpdateArticleOnTime {
 
     }
 
+    @Scheduled(cron = "0 * * * * ?") // 每分钟触发一次
+    public void delayedTaskManager() {
 
-    public void limitListPushOnScheduled() {
-
-
+        delayedTaskManager.checkAndProcessDelayedTasks();
     }
 
 

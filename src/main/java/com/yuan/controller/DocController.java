@@ -1,14 +1,19 @@
 package com.yuan.controller;
 
+import com.yuan.exception.MyRuntimeException;
+import com.yuan.myEnum.CommonConst;
 import com.yuan.params.PictureHandleParam;
+import com.yuan.pojo.User;
 import com.yuan.service.DocService;
+import com.yuan.service.RedisService;
+import com.yuan.task.DelayedTaskManager;
 import com.yuan.utils.DataCacheUtil;
+import com.yuan.utils.QiniuUtil;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,9 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.alibaba.fastjson.JSON.toJSONString;
 
@@ -35,22 +37,53 @@ import static com.alibaba.fastjson.JSON.toJSONString;
 public class DocController {
     @Autowired
     DocService docService;
+    @Autowired
+    RedisService redisService;
+
+    @GetMapping("/getUpToken")
+    public R<String> getUpToken() {
+     User user=   (User)SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
+     String token=user.getUsername()+System.currentTimeMillis();
+     return R.success(token);
+    }
+    @GetMapping("/delete")
+    public R<String> deleteFile(String token) {
+
+        return R.success(token);
+    }
+
+
     @RequestMapping(value = "/picture", method = RequestMethod.POST)
     @ResponseBody
-    public R pictureUpload(@RequestParam(value = "file", required = false) MultipartFile file,@RequestParam(value = "token",required = false) String token) throws IOException {
-     PictureHandleParam param=new PictureHandleParam();
-     param.setPictureSizeType(3);
-     param.setRate(1.0);
-     param.setQuality(0.5);
-     param.setFile(file);
-     String fileName = docService.pictureHandle(param);
-     return R.success(fileName);
+    public R pictureUpload(@RequestParam(value = "file", required = false) MultipartFile file,
+                           @RequestParam(value = "token") String token,
+                           @RequestParam(value = "format", required = false) String format,
+                           @RequestParam(value = "pictureSizeType") Integer pictureSizeType,
+                           @RequestParam(value = "width", required = false) Integer width,
+                           @RequestParam(value = "height", required = false) Integer height,
+                           @RequestParam(value = "rate", required = false) Double rate,
+                           @RequestParam(value = "quality", required = false) Double quality,
+                           @RequestParam(value = "angle", required = false) Integer angle,
+                           HttpServletRequest request)  throws IOException {
+
+        PictureHandleParam param = new PictureHandleParam();
+        param.setToken(token);
+        param.setFormat(format);
+        param.setPictureSizeType(pictureSizeType);
+        param.setWidth(width);
+        param.setHeight(height);
+        param.setRate(rate);
+        param.setQuality(quality);
+        param.setAngle(angle);
+        param.setFile(file);
+        String fileName = docService.pictureHandle(param);
+        return R.success(fileName);
     }
 
     @RequestMapping(value = "/docDown", method = RequestMethod.GET)
     @ResponseBody
-    public void  downloadLocal(@RequestParam("path") String path, HttpServletResponse response) throws IOException {
-        path="D:\\my_java_project\\yuan_blog\\yuan_blog\\src\\inputPic\\"+path;
+    public void downloadLocal(@RequestParam("path") String path, HttpServletResponse response) throws IOException {
+        path = CommonConst.TEMP_DIR_PATh + path;
         // 读到流中
         InputStream inputStream = new FileInputStream(path);// 文件的存放路径
         response.reset();
@@ -59,7 +92,7 @@ public class DocController {
         response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(filename, "UTF-8"));
         response.addHeader("Access-control-Allow-Origin", DataCacheUtil.getRequest().getHeader("Origin"));
         response.addHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
-        response.addHeader("Access-Control-Allow-Headers",  DataCacheUtil.getRequest().getHeader("Access-Control-Request-Headers"));
+        response.addHeader("Access-Control-Allow-Headers", DataCacheUtil.getRequest().getHeader("Access-Control-Request-Headers"));
 
         ServletOutputStream outputStream = response.getOutputStream();
         byte[] b = new byte[1024];

@@ -145,7 +145,7 @@
             <artifactId>httpcore</artifactId>
             <version>4.4.16</version>
         </dependency>
-
+<!--图片处理-->
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>

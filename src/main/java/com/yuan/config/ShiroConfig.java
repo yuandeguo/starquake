@@ -90,7 +90,8 @@ public class ShiroConfig {
         map.put("/user/updateSecretInfo","jwtFilter");
         map.put("/weiYan/deleteWeiYan","jwtFilter");
         map.put("/weiYan/saveWeiYan","jwtFilter");
-        map.put("/**", "anon");//表示这个为公共资源 一定是在受限资源上面
+        map.put("/doc/**","jwtFilter");
+        //map.put("/**", "anon");//表示这个为公共资源 一定是在受限资源上面
 
 
 

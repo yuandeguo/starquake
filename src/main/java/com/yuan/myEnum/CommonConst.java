@@ -188,4 +188,18 @@ public class CommonConst {
     public static final long CACHE_EXPIRE = 4*60*60;
 
 
+    /**
+     * 临时文件 前缀key
+     */
+    public static final String TEMP_FILE_PREFIX = "temp_key:";
+    /**
+     * 临时文件过期 延时队列
+     */
+    public static final String DELAYED_DOC_TASKS="delayed_doc_tasks";
+
+    /**
+     * 临时文件夹名称
+     */
+    public static final String TEMP_DIR_PATh= ".\\yuanBolg\\temp\\";
+
 }

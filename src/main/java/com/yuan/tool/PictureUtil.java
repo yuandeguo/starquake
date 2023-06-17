@@ -6,7 +6,6 @@ import java.io.IOException;
 import com.yuan.params.PictureHandleParam;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.jdbc.Null;
 
 /**
  * @author yuanyuan
@@ -145,9 +144,9 @@ public class PictureUtil {
             handleFile = handleFile.outputQuality(param.getQuality());
 
         }
-        if(param.getAngel()!=null)
+        if(param.getAngle()!=null)
         {
-            handleFile.rotate(param.getAngel());
+            handleFile.rotate(param.getAngle());
         }
         handleFile.toFile(target);
 

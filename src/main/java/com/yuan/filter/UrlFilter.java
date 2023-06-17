@@ -8,11 +8,13 @@ package com.yuan.filter;
  */
 
 import com.yuan.service.RedisService;
+import com.yuan.utils.DataCacheUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Enumeration;
 
@@ -24,11 +26,15 @@ public class UrlFilter implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        //String requestURI = httpRequest.getRequestURI();
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+        //String requestURI = response
         String ipAddress = getIpAdrress(httpRequest);
         redisService.setVisitIp(ipAddress);
         redisService.setVisitUrl();
-        chain.doFilter(request,response);
+        httpServletResponse.addHeader("Access-control-Allow-Origin", DataCacheUtil.getRequest().getHeader("Origin"));
+        httpServletResponse.addHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
+        httpServletResponse.addHeader("Access-Control-Allow-Headers", DataCacheUtil.getRequest().getHeader("Access-Control-Request-Headers"));
+        chain.doFilter(request,httpServletResponse);
 
     }
 

@@ -17,7 +17,6 @@ public interface UserService extends IService<User> {
 
     /**
      * 根据请求头的权限鉴定来退出登录
-     * @param authorization
      * @return
      */
     R exitLogin();

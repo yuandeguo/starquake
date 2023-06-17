@@ -14,6 +14,9 @@ import java.io.Serializable;
 @Data
 public class PictureHandleParam implements Serializable {
      public static final Long serialVersionUID = 1L;
+
+     private String token;
+
     /**
      * 1 - 指定宽高压缩图片, 指定高度或宽度 ，哪个小那个生效，一样的话宽度生效。等比例
      * 2 - 强制  宽高  压缩图片
@@ -40,7 +43,7 @@ public class PictureHandleParam implements Serializable {
     /**
      *  图片旋转，angle 为旋转的角度
      */
-    Double angel;
+    Integer angle;
 
 
     MultipartFile file;

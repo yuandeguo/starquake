@@ -257,6 +257,22 @@ public class RedisServiceImpl implements RedisService {
 
     }
 
+    @Override
+    public Long setEmptyList(String key, Object value) {
+        stringRedisTemplate.opsForList().leftPush(key, value.toString());
+        return 1L;
+    }
+
+    @Override
+    public Long leftPush(String key, Object value, Long expire) {
+        stringRedisTemplate.expire(key, expire, TimeUnit.SECONDS);
+        return  stringRedisTemplate.opsForList().leftPush(key, value.toString());
+    }
+
+    @Override
+    public List<String> getListRange(String key, long start, long end) {
+        return stringRedisTemplate.opsForList().range(key, start, end);
+    }
 
     public boolean articleDataUp(String fields, Integer articleId) {
         String key = "article::" + articleId.toString();
