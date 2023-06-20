@@ -1,19 +1,15 @@
 package com.yuan.controller;
 
-import com.yuan.exception.MyRuntimeException;
 import com.yuan.myEnum.CommonConst;
 import com.yuan.params.PictureHandleParam;
 import com.yuan.pojo.User;
 import com.yuan.service.DocService;
 import com.yuan.service.RedisService;
-import com.yuan.task.DelayedTaskManager;
 import com.yuan.utils.DataCacheUtil;
-import com.yuan.utils.QiniuUtil;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -83,7 +79,7 @@ public class DocController {
     @RequestMapping(value = "/docDown", method = RequestMethod.GET)
     @ResponseBody
     public void downloadLocal(@RequestParam("path") String path, HttpServletResponse response) throws IOException {
-        path = CommonConst.TEMP_DIR_PATh + path;
+        path = CommonConst.TEMP_PIC_DIR_PATh + path;
         // 读到流中
         InputStream inputStream = new FileInputStream(path);// 文件的存放路径
         response.reset();

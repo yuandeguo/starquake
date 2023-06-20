@@ -200,6 +200,7 @@ public class CommonConst {
     /**
      * 临时文件夹名称
      */
-    public static final String TEMP_DIR_PATh= ".\\yuanBolg\\temp\\";
+   // public static final String TEMP_PIC_DIR_PATh = "./temp/picture/";
+    public static final String TEMP_PIC_DIR_PATh = ".\\temp\\picture\\";
 
 }

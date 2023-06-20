@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +36,7 @@ public class DocServiceImpl implements DocService {
     public String pictureHandle(PictureHandleParam param) throws IOException {
         MultipartFile file = param.getFile();
         InputStream inputStream = file.getInputStream();
-        File dir = new File(CommonConst.TEMP_DIR_PATh);
+        File dir = new File(CommonConst.TEMP_PIC_DIR_PATh);
         String suffix= param.getFormat();
         if(StringUtils.isBlank(suffix)){
             suffix = getSuffix(Objects.requireNonNull(file.getOriginalFilename()));

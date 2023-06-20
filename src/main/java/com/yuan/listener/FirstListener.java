@@ -31,7 +31,7 @@ public class FirstListener implements ApplicationListener<ContextRefreshedEvent>
         webInfoService.getWebInfo();
         redisService.getVisitUrl();
 
-        String folderPath = CommonConst.TEMP_DIR_PATh; // 设置文件夹路径
+        String folderPath = CommonConst.TEMP_PIC_DIR_PATh; // 设置文件夹路径
         Path folder = Paths.get(folderPath);
 
         try {

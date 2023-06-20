@@ -27,7 +27,7 @@ public class DocDeleteProcessor {
         stringRedisTemplate.delete(fileList);
         // 执行订单取消操作，例如向数据库更新订单状态、发送通知等
         for(String filePath : range){
-            Path file = Paths.get(CommonConst.TEMP_DIR_PATh+filePath);
+            Path file = Paths.get(CommonConst.TEMP_PIC_DIR_PATh +filePath);
             try {
                 if (Files.exists(file)) {
                     Files.delete(file);
