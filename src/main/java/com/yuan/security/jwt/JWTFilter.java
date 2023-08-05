@@ -30,6 +30,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
+        threadLocal.set(null);
         HttpServletRequest req = (HttpServletRequest) request;
         String authorization = req.getHeader(JWTUtil.AUTH_HEADER_KEY);
         if (StringUtils.isBlank(authorization) || !authorization.startsWith(JWTUtil.TOKEN_PREFIX)) {

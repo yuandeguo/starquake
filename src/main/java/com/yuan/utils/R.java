@@ -42,7 +42,10 @@ public class R <T> implements Serializable {
     public static <T> R<T> fail(String message) {
         return new R(message);
     }
-
+    public static <T> R<T> JWT_EXPIRE(String message) {
+       R r= new R(5001,message);
+        return r;
+    }
     public static <T> R<T> fail(CodeMsg codeMsg) {
         return new R(codeMsg.getCode(), codeMsg.getMsg());
     }

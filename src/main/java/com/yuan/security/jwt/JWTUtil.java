@@ -34,7 +34,8 @@ public class JWTUtil {
 
     //有效期默认为 2天
     public static final Long EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 2;
-
+    //有效期默认为 2天+30分钟
+    public static final Long REFRESH_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 2+ 1000L * 60 * 30;
 
     //用户信息
     public static final String USER_INFO = "userInfo";
@@ -87,7 +88,7 @@ public class JWTUtil {
         //在token中附带了username信息
         JWTVerifier verifier = JWT.require(algorithm).build();
         //验证 token
-        verifier.verify(token);
+        DecodedJWT verify = verifier.verify(token);
         return true;
     }
 

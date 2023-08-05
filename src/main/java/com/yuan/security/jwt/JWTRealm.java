@@ -69,7 +69,7 @@ public class JWTRealm extends AuthorizingRealm {
         // 解密获得username，用于和数据库进行对比
         if (!JWTUtil.verifySpecifiedSecret(token, JWTUtil.JWT_SECRET)) {
             log.info("***JWTReaml.doGetAuthenticationInfo业务结束，token认证失败,token={}", token);
-                       throw new AuthenticationException("您没有登录，请先登录或注册再进行此操作!");
+                       throw new AuthenticationException("5001");
         }
         User user = JSON.parseObject(JWTUtil.getClaim(token, JWTUtil.USER_INFO), User.class);
         return new SimpleAuthenticationInfo(user, token, "JWTRealm");

@@ -62,7 +62,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         .eq(User::getEmail, username)
                         .or()
                         .eq(User::getPhoneNumber, username))
-                .eq(User::getPassword, DigestUtils.md5DigestAsHex(password.getBytes()))
+                .eq(User::getPassword, password)
                 .one();
         if (user == null) {
             return R.fail("账号/密码错误，请重新输入！");
@@ -81,6 +81,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Map<String,String> map=new HashMap<>();
         map.put(JWTUtil.USER_INFO, JSON.toJSONString(user));
         String token = JWTUtil.createToken(map, JWTUtil.JWT_SECRET, JWTUtil.EXPIRATION_TIME);
+        String refreshToken = JWTUtil.createToken(map, JWTUtil.JWT_SECRET, JWTUtil.REFRESH_EXPIRATION_TIME);
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
         userVO.setPassword(null);
@@ -89,6 +90,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             userVO.setIsBoss(true);
         }
         userVO.setAccessToken(token);
+        userVO.setRefreshToken(refreshToken);
         return R.success(userVO);
     }
 

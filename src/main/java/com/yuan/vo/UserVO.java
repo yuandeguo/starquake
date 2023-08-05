@@ -34,6 +34,7 @@ public class UserVO {
     private String updateBy;
     private Boolean isBoss = false;
     private String accessToken;
+    private String refreshToken;
     private String code;
 
 

@@ -7,6 +7,7 @@ import com.yuan.pojo.User;
 import com.yuan.service.RedisService;
 import com.yuan.utils.R;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -76,9 +77,9 @@ public class OperationLogAspect {
             }
             //操作时间
             operationLog.setOperationTime(LocalDateTime.now());
-            String authorization=request.getHeader("Authorization");
+            User user=(User) SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
             //操作用户
-            operationLog.setUserId(redisService.get(authorization, User.class).getId());
+            operationLog.setUserId(user.getId());
 
             //操作IP
             operationLog.setIp(getIpAdrress(request));
